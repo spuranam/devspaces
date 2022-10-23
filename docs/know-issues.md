@@ -91,7 +91,6 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 - https://issues.redhat.com/browse/CRW-3302
 - https://github.com/eclipse/che/issues/21644
 - https://access.redhat.com/support/cases/#/case/03324721
-- https://www.youtube.com/watch?v=n_WMknuTMrI&list=PLy7t4z5SYNaSBxx8gLh0i9LlN2bZW6H1L&index=14
 
 ## Prompts
 
@@ -128,3 +127,8 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 ## Cache
 
 - https://github.com/eclipse/che/issues/21184
+
+## OPENVSX
+
+- https://github.com/open-vsx/publish-extensions
+- https://www.youtube.com/watch?v=n_WMknuTMrI&list=PLy7t4z5SYNaSBxx8gLh0i9LlN2bZW6H1L&index=14

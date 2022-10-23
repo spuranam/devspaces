@@ -130,14 +130,14 @@ commands:
       commandLine: |
         #!/usr/bin/env bash
 
-        if ! code-oss --list-extensions | grep -E 'googlecloudtools.cloudcode' >/dev/null 2>&1; then
+        if ! /checode/checode-linux-libc/bin/remote-cli/code-oss --list-extensions | grep -E 'googlecloudtools.cloudcode' >/dev/null 2>&1; then
           ## --fail --silent --retry 2 --max-time 20
           ## https://marketplace.visualstudio.com/_apis/public/gallery/publishers/GoogleCloudTools/vsextensions/cloudcode/1.20.3/vspackage
           curl --location --compressed --retry 2 \
           --proxy http://internet.gcp.ford.com:83 \
           --output /tmp/GoogleCloudTools.cloudcode.vsix \
           --url "https://storage.googleapis.com/iac-team-prod-artifacts/tmp/GoogleCloudTools.cloudcode-1.20.3.vsix"
-          code-oss --install-extension /tmp/GoogleCloudTools.cloudcode.vsix
+          /checode/checode-linux-libc/bin/remote-cli/code-oss --install-extension /tmp/GoogleCloudTools.cloudcode.vsix --force
           rm -f /tmp/GoogleCloudTools.cloudcode.vsix
         fi
 

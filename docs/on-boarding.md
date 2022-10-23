@@ -72,7 +72,7 @@ git config --global init.defaultBranch main
 git init
 git branch -M main
 git add . && git commit -m "incept"
-git remote add origin git@github.ford.com:spuranam/devspaces.git
+git remote add spuranam git@github.ford.com:spuranam/devspaces.git
 git remote add origin https://github.com/spuranam/devspaces.git
-git push origin
+git push --set-upstream origin main
 ```
