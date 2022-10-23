@@ -70,6 +70,8 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 - https://github.com/eclipse/che/issues/21420
 - https://github.com/devfile/api/issues/920
 - https://issues.redhat.com/browse/CRW-3323
+- https://github.com/eclipse/che/issues/21105#issuecomment-1285443623
+- https://github.com/devfile/devworkspace-operator/pull/944
 
 ## IntelliJ
 
@@ -132,3 +134,7 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 
 - https://github.com/open-vsx/publish-extensions
 - https://www.youtube.com/watch?v=n_WMknuTMrI&list=PLy7t4z5SYNaSBxx8gLh0i9LlN2bZW6H1L&index=14
+
+## editor
+
+- https://github.com/RickJWagner/golang-health-check/blob/devspaces-3-rhel-8/.che/che-editor.yaml

@@ -234,6 +234,7 @@ spec:
   devEnvironments:
     secondsOfRunBeforeIdling: -1
     secondsOfInactivityBeforeIdling: 900 # -1 # to disable uncomment
+    disableContainerBuildCapabilities: true
     ## until https://github.com/eclipse/che/issues/21760 is addressed
     defaultEditor: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
     #defaultEditor: che-incubator/che-code/insiders #eclipse/che-theia/latest
@@ -264,6 +265,7 @@ spec:
         secretName: github-oauth-config
         # https://github.com/eclipse/che/issues/21724
         disableSubdomainIsolation: false
+  ## https://github.com/kubermatic/community-components/blob/master/components/eclipse-che/templates/org_v2_checluster.yaml
   networking:
     auth:
       gateway:
