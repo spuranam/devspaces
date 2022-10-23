@@ -1,0 +1,93 @@
+[centos-9-baseos]
+name=CentOS Stream 9 - BaseOS
+baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/x86_64/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[centos-9-appstream]
+name=CentOS Stream 9 - AppStream
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/x86_64/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[centos-9-extras]
+name=CentOS Stream 9 - Extras
+baseurl=http://mirror.stream.centos.org/9-stream/extras/x86_64/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[centos-9-powertools]
+name=CentOS Stream 9 - Extras
+baseurl=http://mirror.stream.centos.org/9-stream/PowerTools/x86_64/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[centos-9-highavailability]
+name=CentOS Stream 9 - Extras
+baseurl=http://mirror.stream.centos.org/9-stream/HighAvailability/x86_64/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+gpgcheck=1
+repo_gpgcheck=0
+metadata_expire=6h
+countme=1
+enabled=0
+
+[epel-multimedia]
+name=negativo17 - Multimedia
+baseurl=https://negativo17.org/repos/multimedia/epel-$releasever/$basearch/
+enabled=1
+skip_if_unavailable=1
+gpgkey=https://negativo17.org/repos/RPM-GPG-KEY-slaanesh
+gpgcheck=1
+enabled_metadata=1
+metadata_expire=6h
+type=rpm-md
+repo_gpgcheck=0
+
+[epel-multimedia-source]
+name=negativo17 - Multimedia - Source
+baseurl=https://negativo17.org/repos/multimedia/epel-$releasever/SRPMS
+enabled=0
+skip_if_unavailable=1
+gpgkey=https://negativo17.org/repos/RPM-GPG-KEY-slaanesh
+gpgcheck=1
+enabled_metadata=1
+metadata_expire=6h
+type=rpm-md
+repo_gpgcheck=0
+
+[epel-multimedia-debug]
+name=negativo17 - Multimedia - Debug
+baseurl=https://negativo17.org/repos/multimedia/epel-$releasever/$basearch.debug/
+enabled=0
+skip_if_unavailable=1
+gpgkey=https://negativo17.org/repos/RPM-GPG-KEY-slaanesh
+gpgcheck=1
+enabled_metadata=1
+metadata_expire=6h
+type=rpm-md
+repo_gpgcheck=0
+
+## https://developers.redhat.com/articles/2022/10/07/whats-inside-rpm-repo-file#putting_it_all_together
+## https://github.com/dralley/rpmrepo_metadata/blob/master/tests/assets/download_external_repos.sh
+## https://github.com/rocky-linux/sig-core-toolkit/tree/main/iso/empanadas/images
+## https://github.com/rocky-linux/peridot-base-images/blob/main/build/rhel.repo
+## https://github.com/projectcalico/calico/blob/master/node/Dockerfile.amd64
+## https://github.com/pkeech/ubi-podman-oscap-minimal/blob/main/src/custom.repo
+## https://github.com/zombiemaker/aci-aws_client-ubi/blob/master/Dockerfile

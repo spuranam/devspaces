@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: openshift-wif
+  annotations:
+    gcp-openshift-federation-config: |
+      {
+        "audience": "//iam.googleapis.com/projects/219764264310/locations/global/workloadIdentityPools/sb105-2cf66/providers/sb105-2cf66",
+        "credential_source": {
+          "file": "/var/run/secrets/openshift/serviceaccount/token",
+          "format": {
+            "type": "text"
+          }
+        },
+        "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/sa-pipeline@ford-0b080a912fa97c1cf8fb3986.iam.gserviceaccount.com:generateAccessToken",
+        "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+        "token_url": "https://sts.googleapis.com/v1/token",
+        "type": "external_account"
+      }
+spec:
+  serviceAccountName: devspaces-sa
+  volumes:
+    - name: bound-sa-token
+      projected:
+        sources:
+          - serviceAccountToken:
+              audience: openshift
+              expirationSeconds: 3600
+              path: token
+        defaultMode: 420
+    #- name: gcp-credentialsrequest-credentials-vol
+    #  secret:
+    #    secretName: google-creds-dev
+    #    defaultMode: 420
+    #    optional: true
+    - name: gcp-credentialsrequest-credentials-vol
+      projected:
+        sources:
+          - downwardAPI:
+              items:
+                - path: credentials_config.json
+                  fieldRef:
+                    fieldPath: metadata.annotations['gcp-openshift-federation-config']
+  containers:
+    - name: devspace
+      image: registry.ford.com/devspaces/udi-ubi8:20221021-1235
+      args: ["tail", "-f", "/dev/null"]
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: gcp-credentialsrequest-credentials-vol
+          readOnly: true
+          mountPath: /var/run/secrets/google
+        - name: bound-sa-token
+          readOnly: true
+          mountPath: /var/run/secrets/openshift/serviceaccount
+      env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/run/secrets/google/credentials_config.json
+        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+          value: /var/run/secrets/google/credentials_config.json
+      resources:
+        requests:
+          cpu: 250m
+          memory: 250Mi
+        limits:
+          cpu: 500m
+          memory: 500Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: false
+        privileged: false
+        runAsNonRoot: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault

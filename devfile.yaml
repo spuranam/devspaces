@@ -1,0 +1,247 @@
+## https://devfile.io/docs/2.1.0/devfile-schema
+schemaVersion: 2.1.0
+metadata:
+  name: devspaces-sample
+  version: 1.0.0
+attributes:
+  controller.devfile.io/storage-type: per-workspace # per-user | per-workspace | ephemeral
+  controller.devfile.io/scc: container-build
+  #controller.devfile.io/runtime-class: kata ## to run a DevWorkspace using the kata containers runtime
+  #.vscode/extensions.json: |
+  #  {
+  #    "recommendations": [
+  #      "golang.go",
+  #      "ms-kubernetes-tools.vscode-kubernetes-tools",
+  #      "redhat.vscode-yaml",
+  #      "EditorConfig.EditorConfig",
+  #      "googlecloudtools.cloudcode",
+  #      "redhat.vscode-openshift-connector",
+  #      //"ms-vscode.powershell",
+  #      //"errata-ai.vale-server",
+  #    ]
+  #  }
+#variables:
+#  gcpProjectID: 219764264310
+#  gcpProject: ford-0b080a912fa97c1cf8fb3986
+#  gcpServiceAccount: sa-pipeline
+#  workloadIdentityPool: sb105-2cf66
+#parent:
+#  id: go
+#  registryUrl: "https://registry.devfile.io"
+#starterProjects:
+#  - name: hugo-example
+#    git:
+#      checkoutFrom:
+#        remote: origin
+#        revision: main
+#      remotes:
+#        origin: https://github.ford.com/spuranam/devspace-sample.git
+#    subDir: app
+## https://github.com/eclipse/che/issues/21315
+#projects:
+#   - name: devspace-sample
+#     #clonePath: go/src/github.com/acme/my-go-project
+#     git:
+#       checkoutFrom:
+#         remote: origin
+#         revision: main
+#       remotes:
+#         origin: https://github.ford.com/spuranam/devspace-sample.git
+#         upstream: https://github.ford.com/Containers/devspace-sample.git
+components:
+  - name: tools
+    container:
+      image: registry.ford.com/devspaces/udi-ubi8:20221021-1235
+      #image: quay.io/azatsary/ubi8:pwrsh
+      #image: quay.io/devspaces/udi-rhel8:3.3
+      #image: quay.io/devspaces/udi-rhel8:next
+      memoryLimit: 6Gi
+      memoryRequest: 1Gi
+      cpuLimit: 4000m
+      cpuRequest: 1000m
+      mountSources: true
+      env:
+        - name: GOCACHE
+          value: /tmp/.cache
+      endpoints:
+        - name: webapp
+          targetPort: 8080 ## Go sample listens on 8080
+          #path: /hello
+          protocol: https
+          exposure: public # public | internal | none
+          secure: true
+          #attributes:
+          #  urlRewriteSupported: false
+      #volumeMounts:
+      #  - name: m2volume
+      #    path: /home/user/.m2
+      #  - name: seleniumvolume
+      #    path: /dev/shm
+  - name: hugo
+    container:
+      image: registry.ford.com/pipelines/hugo:0.104.3
+      memoryLimit: 2Gi
+      memoryRequest: 500Mi
+      cpuLimit: 2000m
+      cpuRequest: 500m
+      mountSources: true
+      endpoints:
+        - name: hugo-server
+          targetPort: 1313
+          protocol: https
+          exposure: public # public | internal | none
+          secure: true
+      args: ["tail", "-f", "/dev/null"]
+  #- name: projects
+  #  #volume: { ephemeral: true }
+  #  volume:
+  #    size: 3Gi
+  #- name: m2volume
+  #  volume:
+  #    size: 3G
+  #- name: seleniumvolume
+  #  volume:
+  #    size: 3G
+events:
+  postStart:
+    - init-devspace
+  #preStart:
+  #  - install-dependencies-go-hello-world
+commands:
+  ## https://github.com/eclipse-che/che-devfile-registry/pull/68
+  - id: confgure-vscode-extensions
+    exec:
+      label: "configure vscode extension"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}
+      commandLine: |
+        #!/usr/bin/env bash
+        if [[ ! -f /checode/checode-linux-libc/product.json.orig ]]; then
+          cp -f /checode/checode-linux-libc/product.json /checode/checode-linux-libc/product.json.orig
+          cat /checode/checode-linux-libc/product.json.orig | \
+          jq 'del(.extensionsGallery)' | \
+          jq '. + {"extensionsGallery": {"serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery","cacheUrl": "https://vscode.blob.core.windows.net/gallery/index","itemUrl": "https://marketplace.visualstudio.com/items"}}' > /checode/checode-linux-libc/product.json
+        fi
+  - id: init-devspace
+    exec:
+      label: "init devspace"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}
+      commandLine: |
+        #!/usr/bin/env bash
+
+        if ! code-oss --list-extensions | grep -E 'googlecloudtools.cloudcode' >/dev/null 2>&1; then
+          ## --fail --silent --retry 2 --max-time 20
+          ## https://marketplace.visualstudio.com/_apis/public/gallery/publishers/GoogleCloudTools/vsextensions/cloudcode/1.20.3/vspackage
+          curl --location --compressed --retry 2 \
+          --proxy http://internet.gcp.ford.com:83 \
+          --output /tmp/GoogleCloudTools.cloudcode.vsix \
+          --url "https://storage.googleapis.com/iac-team-prod-artifacts/tmp/GoogleCloudTools.cloudcode-1.20.3.vsix"
+          code-oss --install-extension /tmp/GoogleCloudTools.cloudcode.vsix
+          rm -f /tmp/GoogleCloudTools.cloudcode.vsix
+        fi
+
+        if [[ -f ${HOME}/secrets/.dockerconfigjson ]]; then
+          mkdir -p ${HOME}/.docker
+          ln -sfv ${HOME}/secrets/.dockerconfigjson ${HOME}/.docker/config.json
+        fi
+  - id: gcloud-auth
+    exec:
+      label: "GCLOUD: gcloud auth"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}
+      commandLine: |
+        gcloud auth login --update-adc --add-quota-project-to-adc --quiet --verbosity warning
+  - id: install-dependencies-go-hello-world
+    exec:
+      label: "GO: install dependencies"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}/go-hello-world
+      commandLine: "go mod download"
+      group:
+        kind: build
+  - id: run-go-hello-world
+    exec:
+      label: "GO: start hello world"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}/go-hello-world
+      commandLine: "go run main.go"
+      group:
+        kind: run
+        isDefault: true
+  - id: build-go-hello-world
+    exec:
+      label: "GO: build hello world"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}/go-hello-world
+      commandLine: "go build -o /tmp/hello-world -v ."
+      group:
+        kind: build
+        isDefault: true
+  - id: test-go-hello-world
+    exec:
+      label: "GO: test hello world"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}/go-hello-world
+      commandLine: "go test -v ./..."
+      group:
+        kind: test
+  - id: build-go-hello-world
+    exec:
+      label: "GO: build container image"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}/go-hello-world
+      commandLine: |
+        podman build \
+        --authfile=${HOME}/.docker/config.json \
+        --format=oci \
+        --network=host \
+        -t registry.ford.com/devspace/go-hello-world:latest \
+        -f Dockerfile \
+        ${PROJECT_SOURCE}/go-hello-world
+      group:
+        kind: build
+  - id: file
+    exec:
+      label: "GO: run current file"
+      component: tools
+      workingDir: ${fileDirname}
+      commandLine: "go get -d && go run ${file}"
+      group:
+        kind: run
+  - id: stop
+    exec:
+      label: "GO: stop hello-world"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "kill $(pidof go)"
+      group:
+        kind: run
+  - id: start-hugo-server
+    exec:
+      label: "HUGO: start hugo server"
+      component: hugo
+      commandLine: |
+        hugo server \
+        --baseURL=https://${DEVWORKSPACE_ID}-1.$(echo -n ${CHE_DASHBOARD_URL} | cut -d'.' -f2- | tr -d '/') \
+        --appendPort=false \
+        --bind=0.0.0.0 \
+        --renderToDisk \
+        --cleanDestinationDir \
+        --gc \
+        --cacheDir=/tmp/hugo_cache/ \
+        --source=${PROJECT_SOURCE}/hugo-docsy \
+        --destination=/tmp/hugo-public \
+        --liveReloadPort=443
+      workingDir: "${PROJECT_SOURCE}/hugo-docsy"
+      group:
+        kind: run
+        isDefault: true
+  - id: stop-hugo-server
+    exec:
+      label: "HUGO: stop hugo server"
+      component: hugo
+      commandLine: "kill $(pidof hugo)"
+      workingDir: "${PROJECT_SOURCE}/hugo-docsy"
+      group:
+        kind: run

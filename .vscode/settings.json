@@ -1,0 +1,47 @@
+{
+  "files.exclude": {
+    // "**/.vscode": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+  },
+  "files.associations": {
+    "Vagrantfile": "ruby"
+  },
+  "editor.insertSpaces": false,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.autoSave": "onFocusChange",
+  "files.eol": "\n",
+  "editor.fontLigatures": true,
+  "editor.detectIndentation": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.renderControlCharacters": true,
+  "editor.renderWhitespace": "all",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "cloudcode.autoDependencies": "off",
+  "cloudcode.enableMinikubeGcpAuthPlugin": false,
+  "cloudcode.minikubeStatusBar": false,
+  "cloudcode.enableTelemetry": false,
+}
