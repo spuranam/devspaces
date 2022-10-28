@@ -6,7 +6,7 @@ To support GCP WIF, we need:
 
 For example here is a sample [Kubernetes Pod spec](./wif-pod.yaml), that leverages GCP Workload Identity Federation (WIF)
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3470)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3470)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: To be discussed before starting the implementation                   |
 
@@ -20,7 +20,7 @@ For example we need install [googlecloudtools.cloudcode](https://marketplace.vis
 
 Wonder if there is any alternate way to accomplish this?
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3472)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3472)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: The issue will be included in the next sprint backlog                |
 
@@ -32,7 +32,7 @@ We use standard GitHub workflow that entails `fork -> clone -> pr` very similar 
 
 Not really sure how can express this in the devfile, i have [this strawman](../devfile.yaml#L40-L50) in the `devfile.yaml`?
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3482)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3482)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: To be discussed before starting the implementation                   |
 
@@ -49,7 +49,7 @@ Often launching the devspaces instance fails with following error, however a ret
 Detected unrecoverable event FailedScheduling: 0/11 nodes are available: 11 pod has unbound immediate PersistentVolumeClaims. preemption: 0/11 nodes are available: 11 Preemption is not helpful for scheduling..
 ```
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3474)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3474)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: The issue will be included in the next sprint backlog                |
 
@@ -63,7 +63,7 @@ We were able to successfully build container images by following this [blog post
 Error: crun: set propagation for `proc`: Permission denied: OCI permission denied
 ```
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3470)                                              |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3470)                                   |
 |:---------------------------------------------------------------------------------------------------------|
 | **10/28 update**: In progress, planned to be resolved by the end of current sprint but may slip to next. |
 
@@ -75,7 +75,7 @@ Error: crun: set propagation for `proc`: Permission denied: OCI permission denie
 
 vscode extensions called out in file `.vscode/extensions.json` are not automatically installed, nor our attempts to enumerate these [.attribute.".vscode/extensions.json"](../.vscode/extensions.json) in [devfile.yaml](../devfile.yaml#L10-L22) were successful either.
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3483)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3483)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: The issue will be included in the next sprint backlog.               |
 
@@ -83,7 +83,7 @@ vscode extensions called out in file `.vscode/extensions.json` are not automatic
 
 Core vscode plugin starts auto-updating when the workspace starts but then the workspaces has to be manually restarted.
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3475)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3475)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: We have just created the issue, we need to investigate.              |
 
@@ -93,7 +93,7 @@ Core vscode plugin starts auto-updating when the workspace starts but then the w
 
 If we were to switch the OpenShift IdP causes user to looses access to their workspaces, it looks like DevSpaces maintains some records in the PSQL database, which get out of sync with OpenShift IdP, the only recourse we were able to identity was to completely un-install DevSpaces and start over.
 
-| [Link to the related issue](https://issues.redhat.com/browse/CRW-3478)                            |
+| [Link to the related issue](https://issues.redhat.com/browse/CRW-3478)                 |
 |:---------------------------------------------------------------------------------------|
 | **10/28 update**: To be discussed before starting the implementation.                  |
 
