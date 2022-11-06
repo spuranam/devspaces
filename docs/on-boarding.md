@@ -50,12 +50,12 @@ metadata:
 spec:
   hard:
     services.nodeports: '0'
-    limits.cpu: '4'
-    limits.memory: 16Gi
-    requests.cpu: '4'
-    requests.memory: 16Gi
-    px-repl2-file.storageclass.storage.k8s.io/requests.storage: 50Gi
-    px-repl2-block.storageclass.storage.k8s.io/requests.storage: 50Gi
+    limits.cpu: '8'
+    limits.memory: 32Gi
+    requests.cpu: '8'
+    requests.memory: 32Gi
+    px-repl2-file.storageclass.storage.k8s.io/requests.storage: 100Gi
+    px-repl2-block.storageclass.storage.k8s.io/requests.storage: 100Gi
     gce-standard-csi.storageclass.storage.k8s.io/requests.storage: '0'
     gce-ssd-csi.storageclass.storage.k8s.io/requests.storage: '0'
     standard-csi.storageclass.storage.k8s.io/requests.storage: '0'

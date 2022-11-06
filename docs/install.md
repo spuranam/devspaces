@@ -194,8 +194,6 @@ spec:
   images: "img-1=quay.io/devspaces/code-rhel8:3.3;img-2=quay.io/devspaces/idea-rhel8:3.3;img-3=quay.io/devspaces/machineexec-rhel8:3.3;img-4=quay.io/devspaces/theia-endpoint-rhel8:3.3;img-5=quay.io/devspaces/theia-rhel8:3.3;img-6=quay.io/devspaces/udi-rhel8:3.3;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221021-1235;img-9=registry.ford.com/pipelines/hugo:0.104.3"
 EOF
 
-
-
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 ## https://issues.redhat.com/browse/CRW-3187?
 ## https://github.com/l0rd/che-blog/blob/building-container-images-rootless/_posts/2022-09-27-building-container-images.adoc
@@ -225,8 +223,8 @@ spec:
     devfileRegistry: {}
     imagePuller:
       enable: false
-      spec:
-        imagePullerImage: registry.redhat.io/devspaces/imagepuller-rhel8@sha256:704522d3c78929941e101f436b7acfee41680a4cb158bfad70dacd5d63198a2a # tag: 3.1-12
+      #spec:
+      #  imagePullerImage: registry.redhat.io/devspaces/imagepuller-rhel8@sha256:704522d3c78929941e101f436b7acfee41680a4cb158bfad70dacd5d63198a2a # tag: 3.1-12
     metrics:
       enable: true
     pluginRegistry: {}

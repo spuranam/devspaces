@@ -1,23 +1,25 @@
-FROM registry.access.redhat.com/ubi8/ubi:8.6-943.1665521450
+FROM registry.access.redhat.com/ubi8/ubi:8.6-990
 #FROM registry.access.redhat.com/ubi9/ubi:9.0.0-1640.1665068441
 
 ARG \
   UDI_VERSION=20221008-1345 \
   ARGOCD_VAULT_PLUGIN_VERSION=1.13.0 \
-  BAT_VERSION=0.21.0 \
+  BAT_VERSION=0.22.1 \
+  BATS_VERSION=1.8.2 \
   #BUILDKIT_VERSION=0.10.4 \
   CLOUD_SQL_PROXY_SHA256SUM=88ca57368018158e52515862a8b2d7c38ac1f258ae020f01976fbca382c8db2a \
   CLOUD_SQL_PROXY_VERSION=1.32.0 \
   #CRANE_VERSION=0.11.0 \
   DOCKER_CREDENTIAL_GCR_VER=2.1.6 \
   E2FSPROGS_VERSION=1.46.5 \
-  GCLOUD_VERSION=406.0.0 \
-  GH_VERSION=2.18.1 \
-  GO_VERSION=1.19.2 \
-  GO_SHA256SUM='5e8c5a74fe6470dd7e055a461acda8bb4050ead8c2df70f227e3ff7d8eb7eeb6' \
+  GCLOUD_VERSION=408.0.1 \
+  GH_VERSION=2.19.0 \
+  GO_VERSION=1.19.3 \
+  GO_SHA256SUM='74b9640724fd4e6bb0ed2a1bc44ae813a03f1e72a4c76253e2d5c015494430ba' \
   #GOMPLATE_VERSION=3.11.2 \
   GRADLE_VERSION=7.5.1 \
   #GRYPE_VERSION=0.50.2 \
+  HADOLINT_VERSION=2.10.0 \
   HELM_VERSION=3.10.1 \
   JAVA_11_VERSION=11.0.16.1 \
   JAVA_17_VERSION=17.0.4.1 \
@@ -28,33 +30,32 @@ ARG \
   KN_VERSION=1.7.0 \
   KREW_VERSION=0.4.3 \
   KUSTOMIZE_VERSION=4.5.7 \
-  LOMBOK_VERSION=1.18.22 \
   LOMBOK_VERSION=1.18.24 \
   MAVEN_VERSION=3.8.6 \
   #NODEJS_12_VERSION=12.22.12 \
   #NODEJS_14_VERSION=14.20.1 \
-  NODEJS_16_VERSION=16.18.0 \
-  NODEJS_18_VERSION=18.11.0 \
-  NODEJS_DEFAULT_VERSION=18.11.0 \
+  NODEJS_16_VERSION=16.18.1 \
+  NODEJS_18_VERSION=18.12.1 \
+  NODEJS_DEFAULT_VERSION=18.12.1 \
   NVM_VERSION=0.39.2 \
-  OC_VERSION=4.11.9 \
-  ODO_VERSION=3.0.0 \
+  OC_VERSION=4.11.12 \
+  ODO_VERSION=3.2.0 \
   PS_VERSION=7.2.7 \
   PSEDTSVC_VERSION=3.4.5 \
-  RCLONE_VERSION=1.59.2 \
+  RCLONE_VERSION=1.60.0 \
   RIPGREP_VERSION=13.0.0 \
   ROBOCONFIG_VERSION=0.27.2 \
-  ROXCTL_VERSION=3.72.0 \
+  ROXCTL_VERSION=3.72.1 \
   SHELLCHECK_VERSION=0.8.0 \
   #SYFT_VERSION=0.57.0 \
-  SKAFFOLD_VERSION=2.0.0 \
+  SKAFFOLD_VERSION=2.0.1 \
   TELLER_VERSION=1.5.6 \
-  TERRAFORM_VER=1.3.3 \
+  TERRAFORM_VER=1.3.4 \
   TKNCLI_VERSION=0.27.0 \
-  TRIVY_VERSION=0.32.1 \
-  TILT_VERSION=0.30.9 \
-  VAULT_VERSION=1.12.0 \
-  YQ_VERSION=4.28.2
+  TRIVY_VERSION=0.34.0 \
+  TILT_VERSION=0.30.10 \
+  VAULT_VERSION=1.12.1 \
+  YQ_VERSION=4.29.2
 
 ENV \
   LANG='en_US.UTF-8' \
@@ -133,6 +134,8 @@ RUN set -ex && \
   redhat-rpm-config patch ca-certificates glibc-langpack-en \
   coreutils-single nss_wrapper libffi-devel openssl-devel \
   bind-utils nmap-ncat \
+  # BATS
+  parallel ncurses \
   # Python
   openssh-clients libicu libgcc \
   python39-devel python39-pip python39-setuptools python39 \
@@ -447,6 +450,27 @@ RUN set -ex && \
   rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
   rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
   ###==>
+  #################################################################
+  # Install bats-core
+  # Create empty ~/.parallel/ignored_vars and ~/.parallel/will-cite files so
+  # parallel will pass all env variables and not show the citation message.
+  #################################################################
+  mkdir -p ${HOME}/.parallel /usr/local/bin/bats && \
+  touch ${HOME}/.parallel/will-cite && \
+  touch ${HOME}/.parallel/ignored_vars && \
+  chown -R ${USER_UID}:0 ${HOME} && \
+  chmod -R 0775 ${HOME} && \
+  curl --progress-bar --location --fail --show-error \
+  --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" \
+  --retry "${CURL_RETRY:-5}" \
+  --retry-delay "${CURL_RETRY_DELAY:-0}" \
+  --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" \
+  --output - \
+  --url "https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz" | \
+  tar -zxf - --no-same-owner -C /usr/local/bin/bats --strip-components=1 && \
+  rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
+  rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
+  ###==>
   ##################################################################
   ### install ripgrep
   ##################################################################
@@ -521,6 +545,20 @@ RUN set -ex && \
   --output /usr/local/bin/kn \
   --url "https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/kn-linux-amd64" && \
   chmod 0755 /usr/local/bin/kn && \
+  rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
+  rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
+  ###==>
+  ##################################################################
+  ### install hadolint
+  ##################################################################
+  curl --progress-bar --location --fail --show-error \
+  --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" \
+  --retry "${CURL_RETRY:-5}" \
+  --retry-delay "${CURL_RETRY_DELAY:-0}" \
+  --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" \
+  --output /usr/local/bin/hadolint \
+  --url "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-x86_64" && \
+  chmod 0755 /usr/local/bin/hadolint && \
   rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
   rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
   ###==>

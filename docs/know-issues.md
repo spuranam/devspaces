@@ -138,3 +138,12 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 ## editor
 
 - https://github.com/RickJWagner/golang-health-check/blob/devspaces-3-rhel-8/.che/che-editor.yaml
+
+## Refs
+- https://github.com/devfile/api/issues/920
+- https://github.com/devfile/devworkspace-operator/pull/963
+- https://github.com/devfile/devworkspace-operator/issues/852
+- https://issues.redhat.com/browse/CRW-3470 (KSA)
+
+Anotations and open-vsx registry
+sudo jamf recon
