@@ -195,6 +195,3 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 - https://github.com/devfile/devworkspace-operator/pull/963
 - https://github.com/devfile/devworkspace-operator/issues/852
 - https://issues.redhat.com/browse/CRW-3470 (KSA)
-
-Anotations and open-vsx registry
-sudo jamf recon
