@@ -117,6 +117,19 @@ COPY ./rootfs /
 
 RUN set -ex && \
   #################################################################
+  # install epel
+  #################################################################
+  curl \
+  --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" \
+  --retry "${CURL_RETRY:-5}" \
+  --retry-delay "${CURL_RETRY_DELAY:-0}" \
+  --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" \
+  --progress-bar --location --fail --show-error \
+  --output /tmp/epel-release-latest.noarch.rpm \
+  --url "https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm" && \
+  rpm -ivh /tmp/epel-release-latest.noarch.rpm && \
+  rm -f /tmp/epel-release-latest.noarch.rpm && \
+  #################################################################
   # Define package dependecies
   #################################################################
   (echo '[container-tools]'; echo 'name=container-tools'; echo 'stream=rhel8'; echo 'profiles='; echo 'state=enabled') > /etc/dnf/modules.d/container-tools.module && \
@@ -135,7 +148,7 @@ RUN set -ex && \
   coreutils-single nss_wrapper libffi-devel openssl-devel \
   bind-utils nmap-ncat \
   # BATS
-  parallel ncurses \
+  ncurses parallel \
   # Python
   openssh-clients libicu libgcc \
   python39-devel python39-pip python39-setuptools python39 \
@@ -193,6 +206,7 @@ RUN set -ex && \
   --enablerepo="ubi-8-appstream-rpms" \
   --enablerepo="ubi-8-baseos-rpms" \
   --enablerepo="ubi-8-codeready-builder-rpms" \
+  --enablerepo="epel" \
   -y --nodocs --setopt=tsflags=nodocs \
   --setopt=install_weak_deps=0 --setopt=skip_missing_names_on_install=False \
   --disableplugin=subscription-manager install \
