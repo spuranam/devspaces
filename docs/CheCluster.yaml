@@ -23,7 +23,7 @@ spec:
       runningLimit: "1"
     devfileRegistry: {}
     imagePuller:
-      enable: true
+      enable: false
       #spec:
       #  imagePullerImage: registry.redhat.io/devspaces/imagepuller-rhel8@sha256:704522d3c78929941e101f436b7acfee41680a4cb158bfad70dacd5d63198a2a # tag: 3.1-12
     metrics:

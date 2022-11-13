@@ -60,31 +60,30 @@ components:
       cpuLimit: 4000m
       cpuRequest: 1000m
       mountSources: true
-      #pod-overrides:
-      container-overrides:
-        volumeMounts:
-          #- name: gcp-creds
-          #  mountPath: /var/run/secret/cloud.google.com
-          #  readOnly: true
-          - name: bound-sa-token
-            mountPath: /var/run/secrets/openshift/serviceaccount
-            readOnly: true
-        volumes:
-          #- name: gcp-creds
-          #  configMap:
-          #    name: gcp-wif-config
-          #    items:
-          #      - key: credentials_config.json
-          #        path: credentials_config.json
-          #    defaultMode: 420
-          - name: bound-sa-token
-            projected:
-              sources:
-                - serviceAccountToken:
-                    audience: openshift
-                    expirationSeconds: 3600
-                    path: token
-              defaultMode: 420
+      #container-overrides:
+      #  volumeMounts:
+      #    #- name: gcp-creds
+      #    #  mountPath: /var/run/secret/cloud.google.com
+      #    #  readOnly: true
+      #    - name: bound-sa-token
+      #      mountPath: /var/run/secrets/openshift/serviceaccount
+      #      readOnly: true
+      #  volumes:
+      #    #- name: gcp-creds
+      #    #  configMap:
+      #    #    name: gcp-wif-config
+      #    #    items:
+      #    #      - key: credentials_config.json
+      #    #        path: credentials_config.json
+      #    #    defaultMode: 420
+      #    - name: bound-sa-token
+      #      projected:
+      #        sources:
+      #          - serviceAccountToken:
+      #              audience: openshift
+      #              expirationSeconds: 3600
+      #              path: token
+      #        defaultMode: 420
       env:
         - name: GOCACHE
           value: /tmp/.cache

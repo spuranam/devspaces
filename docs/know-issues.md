@@ -14,6 +14,9 @@ For example here is a sample [Kubernetes Pod spec](./wif-pod.yaml), that leverag
 > - It’s currently not possible to use a pre-created SA (issue linked above). That can be addressed but I would like to discuss if there are other options before we start working on it.
 > - It should be possible to mount projected SA inside the workspace using a [`podOverride attribute`](https://github.com/devfile/devworkspace-operator/issues/852).
 
+Devfile does not support `container-overrides` or `pod-overrides`
+
+> Error occurred during creation a workspace from devfile located at `https://raw.github.ford.com/Containers/devspace-sample/HEAD/devfile.yaml`. Cause: Devfile schema validation failed. Error: (/components/0/container/container-overrides):The object must not have a property whose name is "container-overrides".
 ## 2. How to install plugins that are not published to https://open-vsx.org
 
 For example we need install [googlecloudtools.cloudcode](https://marketplace.visualstudio.com/items?itemName=GoogleCloudTools.cloudcode), which is not published to https://open-vsx.org. We tried to automate install by downloading vsix file and install using [code-oss utility](../devfile.yaml#L105-L147), but it turns out that `code-oss` is not available inside the our [custom udi image](../universal-developer-image/Dockerfile).
@@ -98,6 +101,11 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 | **10/28 update**: To be discussed before starting the implementation.                  |
 
 > **Note**: This can be tricky as changing the IdP means changing OpenShift Users IDs. From an OpenShift point of view users are different, so losing access to the existing workspaces looks expected. Now if that means that existing users (but new from OCP point of view) cannot use Dev Spaces at all, they cannot even create new workspaces, that’s an issue. In fact if the new old and names match, the namespace will be the same, and the new user may not be able to use Dev Spaces. In this case some possible workarounds may be: deleting the existing namespace and [pre-create the new namespaces](https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.2/html/administration_guide/configuring-che#preprovisioning-projects), or changing the spec.devEnvironments.defaultNamespace.template.
+
+## 9. Use storageClass defined in the CR
+
+DevSpace v3.3 does not honor the storageClass defined in the CR, [for example](./CheCluster.yaml#L56)
+
 
 ## Refs
 - [Support UBI9](https://issues.redhat.com/browse/CRW-3261)
