@@ -1,11 +1,11 @@
-## ENV
+## 1. ENV
 
 ```bash
 #GITOPS_REPO="${HOME}/Projects/workspace/Containers/platform-gitops"
 GITOPS_REPO="${HOME}/Projects/workspace/Containers/devspace-sample"
 ```
 
-## Update registry allow list
+## 2. Update registry allow list
 
 ```bash
 oc get image.config.openshift.io/cluster -o yaml | \
@@ -17,14 +17,14 @@ oc get image.config.openshift.io/cluster -o yaml | \
   kubectl apply -f -
 ```
 
-## Update HTTP Proxies
+## 3. Update HTTP Proxies
 
 ```bash
 oc patch proxy.config.openshift.io/cluster --type=merge \
   --patch='{"spec": {"httpProxy": "http://internet.ford.com:83","httpsProxy": "http://internet.ford.com:83","noProxy": "localhost,127.0.0.1,.ford.com,.local,.svc,.internal,.googleapis.com"}}'
 ```
 
-## Create Namespace
+## 4. Create Namespace
 
 ```bash
 cat <<EOF | oc apply -f - --server-side --force-conflicts
@@ -37,7 +37,7 @@ metadata:
 EOF
 ```
 
-## Create GitHub OAUth Secret
+## 5. Create GitHub OAUth Secret
 
 ```bash
 cat <<EOF | oc apply -f - --server-side --force-conflicts
@@ -62,7 +62,7 @@ data:
 EOF
 ```
 
-## Install Image Puller Operator
+## 6. Install Image Puller Operator
 
 ```bash
 
@@ -96,7 +96,7 @@ spec:
 EOF
 ```
 
-## Create ImageContentSourcePolicy to pull pre-release version
+## 7. Create ImageContentSourcePolicy to pull pre-release version
 
 ```bash
 cat <<EOF | oc apply -f - --server-side --force-conflicts
@@ -180,7 +180,7 @@ spec:
 EOF
 ```
 
-## Install DevWorkspace Operator
+## 8. Install DevWorkspace Operator
 
 ```bash
 # Add DevWorkspace upstream catalog source
@@ -223,7 +223,7 @@ oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces -
   --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
 ```
 
-## Install DevSpaces Operator
+## 9. Install DevSpaces Operator
 
 ```bash
 
