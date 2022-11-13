@@ -1,7 +1,13 @@
+## ENV
+
 ```bash
 #GITOPS_REPO="${HOME}/Projects/workspace/Containers/platform-gitops"
 GITOPS_REPO="${HOME}/Projects/workspace/Containers/devspace-sample"
+```
 
+## Update registry allow list
+
+```bash
 oc get image.config.openshift.io/cluster -o yaml | \
   kubectl neat - | \
   yq eval '.spec.registrySources.allowedRegistries += ["registry-proxy.engineering.redhat.com"]' - | \
@@ -9,10 +15,18 @@ oc get image.config.openshift.io/cluster -o yaml | \
   yq eval '.spec.allowedRegistriesForImport += [{"domainName": "registry-proxy.engineering.redhat.com", "insecure": false}]' - | \
   yq eval '.spec.allowedRegistriesForImport += [{"domainName": "registry.stage.redhat.io", "insecure": false}]' - | \
   kubectl apply -f -
+```
 
+## Update HTTP Proxies
+
+```bash
 oc patch proxy.config.openshift.io/cluster --type=merge \
   --patch='{"spec": {"httpProxy": "http://internet.ford.com:83","httpsProxy": "http://internet.ford.com:83","noProxy": "localhost,127.0.0.1,.ford.com,.local,.svc,.internal,.googleapis.com"}}'
+```
 
+## Create Namespace
+
+```bash
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 kind: Namespace
 apiVersion: v1
@@ -20,9 +34,12 @@ metadata:
   name: openshift-devspaces
   labels:
     kubernetes.io/metadata.name: openshift-devspaces
----
 EOF
+```
 
+## Create GitHub OAUth Secret
+
+```bash
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 # https://www.eclipse.org/che/docs/next/administration-guide/configuring-oauth-2-for-github/#applying-the-github-oauth-app-secret_che
 # https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/html-single/administration_guide/index#oauth-for-github-gitlab-or-bitbucket
@@ -43,6 +60,11 @@ data:
   id: XXXXXXXXXXXXXXXX
   secret: YYYYYYYYYYYYYY
 EOF
+```
+
+## Install Image Puller Operator
+
+```bash
 
 ## https://access.redhat.com/support/cases/#/case/03322059
 kubectl apply -f - <<EOF
@@ -72,12 +94,11 @@ spec:
   imagePullerImage: 'quay.io/eclipse/kubernetes-image-puller:next'
   images: "img-1=quay.io/devspaces/code-rhel8:3.3;img-2=quay.io/devspaces/idea-rhel8:3.3;img-3=quay.io/devspaces/machineexec-rhel8:3.3;img-4=quay.io/devspaces/theia-endpoint-rhel8:3.3;img-5=quay.io/devspaces/theia-rhel8:3.3;img-6=quay.io/devspaces/udi-rhel8:3.3;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221111-2306;img-9=registry.ford.com/pipelines/hugo:0.105.0"
 EOF
+```
 
-oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces --type=merge \
-  --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
+## Create ImageContentSourcePolicy to pull pre-release version
 
-#oc create sa devspace -n spuranam-ford-com-devspaces
-
+```bash
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 apiVersion: operator.openshift.io/v1alpha1
 kind: ImageContentSourcePolicy
@@ -157,20 +178,11 @@ spec:
         - registry.redhat.io/devspaces/devspaces-operator-bundle
       source: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle
 EOF
+```
 
-cat <<EOF | oc apply -f - --server-side --force-conflicts
-apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: devspaces-fast
-  namespace: openshift-operators
-spec:
-  sourceType: grpc
-  image: quay.io/devspaces/iib:3.3-v4.11-x86_64
-  publisher: IIB testing devspaces
-  displayName: IIB testing catalog devspaces
-EOF
+## Install DevWorkspace Operator
 
+```bash
 # Add DevWorkspace upstream catalog source
 kubectl apply -f - <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -206,6 +218,28 @@ spec:
   startingCSV: devworkspace-operator.v0.18.0-dev.5
 EOF
 
+## Patch DWO to use static service account
+oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces --type=merge \
+  --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
+```
+
+## Install DevSpaces Operator
+
+```bash
+
+cat <<EOF | oc apply -f - --server-side --force-conflicts
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: devspaces-fast
+  namespace: openshift-operators
+spec:
+  sourceType: grpc
+  image: quay.io/devspaces/iib:3.3-v4.11-x86_64
+  publisher: IIB testing devspaces
+  displayName: IIB testing catalog devspaces
+EOF
+
 #oc -n openshift-operators delete subscription.operators.coreos.com devworkspace-operator-fast-devspaces-fast-openshift-operators
 ## Patch the DevWorkspace operator subscription to use the upstream catalog source
 #SUB_NAME="devworkspace-operator-fast-devspaces-fast-openshift-operators"
@@ -228,7 +262,11 @@ spec:
   sourceNamespace: openshift-operators
   startingCSV: devspacesoperator.v3.3.0
 EOF
+```
 
+## Installer
+
+```bash
 oc -n openshift-operators delete subscription.operators.coreos.com devspaces
 
 rm -f ${GITOPS_REPO}/refs/{installDevSpacesFromLatestIIB.sh,installCatalogSourceFromIIB.sh,getLatestIIBs.sh}
@@ -243,6 +281,11 @@ chmod +x ${GITOPS_REPO}/refs/*.sh
 #${GITOPS_REPO}/refs/installDevSpacesFromLatestIIB.sh --next --quay --no-checluster --no-create-users
 ${GITOPS_REPO}/refs/installDevSpacesFromLatestIIB.sh -t 3.3 --quay --no-checluster --no-create-users
 #${GITOPS_REPO}/refs/installDevSpacesFromLatestIIB.sh -t 3.2 --quay --no-checluster --no-create-users
+```
+
+## Delete
+
+```bash
 
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 ## https://issues.redhat.com/browse/CRW-3187?
@@ -321,11 +364,6 @@ spec:
           app: che
           component: che-gateway-config
 EOF
-```
-
-## Delete
-
-```bash
 
 oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]'
 
