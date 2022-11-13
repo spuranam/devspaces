@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi:8.6-990
+FROM registry.access.redhat.com/ubi8/ubi:8.7-929
 #FROM registry.access.redhat.com/ubi9/ubi:9.0.0-1640.1665068441
 
 ARG \
@@ -7,13 +7,13 @@ ARG \
   BAT_VERSION=0.22.1 \
   BATS_VERSION=1.8.2 \
   #BUILDKIT_VERSION=0.10.4 \
-  CLOUD_SQL_PROXY_SHA256SUM=88ca57368018158e52515862a8b2d7c38ac1f258ae020f01976fbca382c8db2a \
-  CLOUD_SQL_PROXY_VERSION=1.32.0 \
+  CLOUD_SQL_PROXY_SHA256SUM=aeca09b2b8a8060b5ef7dfdac41578b4a317ff550f24cae34f18e343a3211d48 \
+  CLOUD_SQL_PROXY_VERSION=1.33.0 \
   #CRANE_VERSION=0.11.0 \
   DOCKER_CREDENTIAL_GCR_VER=2.1.6 \
   E2FSPROGS_VERSION=1.46.5 \
-  GCLOUD_VERSION=408.0.1 \
-  GH_VERSION=2.19.0 \
+  GCLOUD_VERSION=409.0.0 \
+  GH_VERSION=2.20.0 \
   GO_VERSION=1.19.3 \
   GO_SHA256SUM='74b9640724fd4e6bb0ed2a1bc44ae813a03f1e72a4c76253e2d5c015494430ba' \
   #GOMPLATE_VERSION=3.11.2 \
@@ -38,14 +38,14 @@ ARG \
   NODEJS_18_VERSION=18.12.1 \
   NODEJS_DEFAULT_VERSION=18.12.1 \
   NVM_VERSION=0.39.2 \
-  OC_VERSION=4.11.12 \
+  OC_VERSION=4.11.13 \
   ODO_VERSION=3.2.0 \
-  PS_VERSION=7.2.7 \
+  PS_VERSION=7.3.0 \
   PSEDTSVC_VERSION=3.4.5 \
   RCLONE_VERSION=1.60.0 \
   RIPGREP_VERSION=13.0.0 \
   ROBOCONFIG_VERSION=0.27.2 \
-  ROXCTL_VERSION=3.72.1 \
+  ROXCTL_VERSION=3.72.2 \
   SHELLCHECK_VERSION=0.8.0 \
   #SYFT_VERSION=0.57.0 \
   SKAFFOLD_VERSION=2.0.1 \
@@ -53,9 +53,9 @@ ARG \
   TERRAFORM_VER=1.3.4 \
   TKNCLI_VERSION=0.27.0 \
   TRIVY_VERSION=0.34.0 \
-  TILT_VERSION=0.30.10 \
+  TILT_VERSION=0.30.11 \
   VAULT_VERSION=1.12.1 \
-  YQ_VERSION=4.29.2
+  YQ_VERSION=4.30.1
 
 ENV \
   LANG='en_US.UTF-8' \
@@ -156,7 +156,7 @@ RUN set -ex && \
   gettext make cmake autoconf automake gcc gcc-c++ glibc-devel \
   zlib-devel libstdc++ libstdc++-devel \
   # Dotnet
-  dotnet-sdk-6.0 \
+  dotnet-sdk-7.0 \
   # C/CPP
   llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb \
   git-clang-format make cmake \

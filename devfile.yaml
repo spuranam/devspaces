@@ -51,7 +51,7 @@ attributes:
 components:
   - name: tools
     container:
-      image: registry.ford.com/devspaces/udi-ubi8:20221021-1235
+      image: registry.ford.com/devspaces/udi-ubi8:20221111-2306
       #image: quay.io/azatsary/ubi8:pwrsh
       #image: quay.io/devspaces/udi-rhel8:3.3
       #image: quay.io/devspaces/udi-rhel8:next
@@ -60,9 +60,38 @@ components:
       cpuLimit: 4000m
       cpuRequest: 1000m
       mountSources: true
+      #pod-overrides:
+      container-overrides:
+        volumeMounts:
+          #- name: gcp-creds
+          #  mountPath: /var/run/secret/cloud.google.com
+          #  readOnly: true
+          - name: bound-sa-token
+            mountPath: /var/run/secrets/openshift/serviceaccount
+            readOnly: true
+        volumes:
+          #- name: gcp-creds
+          #  configMap:
+          #    name: gcp-wif-config
+          #    items:
+          #      - key: credentials_config.json
+          #        path: credentials_config.json
+          #    defaultMode: 420
+          - name: bound-sa-token
+            projected:
+              sources:
+                - serviceAccountToken:
+                    audience: openshift
+                    expirationSeconds: 3600
+                    path: token
+              defaultMode: 420
       env:
         - name: GOCACHE
           value: /tmp/.cache
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/run/secret/cloud.google.com/credentials_config.json
+        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+          value: /var/run/secret/cloud.google.com/credentials_config.json
       endpoints:
         - name: webapp
           targetPort: 8080 ## Go sample listens on 8080
@@ -79,7 +108,7 @@ components:
       #    path: /dev/shm
   - name: hugo
     container:
-      image: registry.ford.com/pipelines/hugo:0.104.3
+      image: registry.ford.com/pipelines/hugo:0.105.0
       memoryLimit: 2Gi
       memoryRequest: 500Mi
       cpuLimit: 2000m

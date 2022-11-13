@@ -1,10 +1,10 @@
-FROM registry.ford.com/pipelines/go:1.19.2 As builder
+FROM registry.ford.com/pipelines/go:1.19.3 As builder
 COPY . ${HOME}/src/
 RUN set -ex && \
   cd ${HOME}/src/ && \
   GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -buildvcs=false -o /tmp/hello-world main.go
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.0.0-1644
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.0.0-1700
 
 ARG \
   VERSION=1.0.0

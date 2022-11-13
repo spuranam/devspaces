@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.0.0-1687
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.0.0-1700
 
 ARG \
   HUGO_VERSION=0.105.0 \
@@ -65,6 +65,16 @@ RUN set -ex && \
   # RUNTIME_PKGS:
   #   list of packages that must be present in the final container
   #   image.
+  #  nss_wrapper gettext openssh-clients nano
+  # scl-utils libpq-devel libxml2-devel libxslt-devel mariadb-connector-c-devel npm sqlite-devel gd-devel gdb groff-base libcurl-devel lsof openssl-devel
+  #################################################################
+  ## https://fedoramagazine.org/building-smaller-container-images/ (modules)
+  ## https://github.com/rhjhunt/vale/blob/master/Dockerfile
+  ## https://github.com/rohankumardubey/stackrox/blob/master/operator/Dockerfile
+  ## https://github.com/redhat-developer/web-terminal-tooling/blob/main/build/template.Dockerfile#L50
+  ## https://github.com/redhat-developer/devspaces-images/blob/crw-2-rhel-8/codeready-workspaces-udi/Dockerfile
+  ## https://github.com/redhat-developer/devspaces-theia/blob/devspaces-3-rhel-8/dockerfiles/theia-dev/rhel.Dockerfile
+  ## https://github.com/stolostron/kui-web-terminal
   PKGMGR='microdnf' && \
   BUILDTIME_PKGS="" && \
   RUNTIME_PKGS="findutils coreutils-single glibc-minimal-langpack ca-certificates \
@@ -80,6 +90,10 @@ RUN set -ex && \
   --enablerepo="ubi-9-appstream-rpms" \
   --enablerepo="ubi-9-baseos-rpms" \
   --enablerepo="ubi-9-codeready-builder-rpms" \
+  #--enablerepo="rhel-9-for-x86_64-baseos-rpms" \
+  #--enablerepo="rhel-9-for-x86_64-appstream-rpms" \
+  #--enablerepo="codeready-builder-for-rhel-9-x86_64-rpms" \
+  ##--enablerepo="rhel-9-for-x86_64-resilientstorage-rpms" \
   install -y --nodocs --setopt=tsflags=nodocs ${BUILDTIME_PKGS} ${RUNTIME_PKGS} && \
   #################################################################
   # Cleanup packages
@@ -250,6 +264,12 @@ RUN set -ex && \
   rm -rf /tmp/vale_${VALE_VERSION}_Linux_64-bit.tar.gz && \
   rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
   rm -rf /var/cache/* /var/log/dnf* /var/log/yum.*
+
+## delete all files and directories under a dir including "hidden" files and directories
+##find /root -mindepth 1 -maxdepth 1 -exec rm -rf {} \;
+#find /root -mindepth 1 -maxdepth 1 | xargs rm -rf && \
+#find /tmp -mindepth 1 -maxdepth 1 | xargs rm -rf && \
+#find /var/cache -mindepth 1 -maxdepth 1 | xargs rm -rf
 
 WORKDIR ${HOME}
 

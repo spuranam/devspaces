@@ -12,7 +12,7 @@ Run this in GCP to create Workload Identity Federation Bindings, between GCP SA 
 CUSTOMER_GCP_SA='sa-pipeline@ford-0b080a912fa97c1cf8fb3986.iam.gserviceaccount.com'
 CUSTOMER_GCP_PROJECT_ID='ford-0b080a912fa97c1cf8fb3986'
 OCP_NAMESPACE='spuranam-ford-com-devspaces'
-OCP_SERVICE_ACCOUNT='devspaces-sa'
+OCP_SERVICE_ACCOUNT='devspace'
 OCP_GCP_PROJECT_NUMBER='219764264310'
 OCP_WORKLOAD_IDENTITY_POOL='sb105-2cf66'
 
@@ -55,14 +55,14 @@ yq eval 'del(.metadata.creationTimestamp)' - | kubectl apply -f -
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: google-creds
+  name: gcp-wif-config
   namespace: spuranam-ford-com-devspaces
   labels:
     controller.devfile.io/mount-to-devworkspace: 'true'
     controller.devfile.io/watch-configmap: 'true'
   annotations:
-    controller.devfile.io/mount-path: /home/user/secrets
-    controller.devfile.io/mount-as: file # file | subpath
+    controller.devfile.io/mount-path: /var/run/secret/cloud.google.com/credentials_config.json
+    controller.devfile.io/mount-as: subpath # file | subpath
 data:
   google-creds.json: |
     {

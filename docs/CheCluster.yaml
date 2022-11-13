@@ -36,11 +36,10 @@ spec:
     disableContainerBuildCapabilities: false
     ## until https://github.com/eclipse/che/issues/21760 is addressed
     defaultEditor: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
-    #defaultEditor: che-incubator/che-code/insiders #eclipse/che-theia/latest
     defaultComponents:
       - name: universal-developer-image
         container:
-          image: registry.ford.com/devspaces/udi-ubi8:20221021-1235 #quay.io/devspaces/udi-rhel8:3.3 #registry.redhat.io/devspaces/udi-rhel8:3.3
+          image: registry.ford.com/devspaces/udi-ubi8:20221111-2306
           sourceMapping: /projects
           memoryLimit: 6Gi
           memoryRequest: 1Gi

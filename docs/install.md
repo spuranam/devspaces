@@ -191,8 +191,14 @@ spec:
   daemonsetName: k8s-image-puller
   deploymentName: kubernetes-image-puller
   imagePullerImage: 'quay.io/eclipse/kubernetes-image-puller:next'
-  images: "img-1=quay.io/devspaces/code-rhel8:3.3;img-2=quay.io/devspaces/idea-rhel8:3.3;img-3=quay.io/devspaces/machineexec-rhel8:3.3;img-4=quay.io/devspaces/theia-endpoint-rhel8:3.3;img-5=quay.io/devspaces/theia-rhel8:3.3;img-6=quay.io/devspaces/udi-rhel8:3.3;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221107-0428;img-9=registry.ford.com/pipelines/hugo:0.104.3"
+  images: "img-1=quay.io/devspaces/code-rhel8:3.3;img-2=quay.io/devspaces/idea-rhel8:3.3;img-3=quay.io/devspaces/machineexec-rhel8:3.3;img-4=quay.io/devspaces/theia-endpoint-rhel8:3.3;img-5=quay.io/devspaces/theia-rhel8:3.3;img-6=quay.io/devspaces/udi-rhel8:3.3;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221111-2306;img-9=registry.ford.com/pipelines/hugo:0.105.0"
 EOF
+
+oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces --type=merge \
+  --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
+
+oc create sa devspace -n spuranam-ford-com-devspaces
+
 
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 ## https://issues.redhat.com/browse/CRW-3187?
