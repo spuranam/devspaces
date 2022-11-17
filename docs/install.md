@@ -67,7 +67,7 @@ EOF
 ```bash
 
 ## https://access.redhat.com/support/cases/#/case/03322059
-kubectl apply -f - <<EOF
+kubectl apply -f - --server-side --force-conflicts <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
@@ -81,7 +81,7 @@ spec:
   sourceNamespace: openshift-marketplace
 EOF
 
-kubectl apply -f - <<EOF
+kubectl apply -f - --server-side --force-conflicts <<EOF
 apiVersion: che.eclipse.org/v1alpha1
 kind: KubernetesImagePuller
 metadata:
@@ -184,7 +184,7 @@ EOF
 
 ```bash
 # Add DevWorkspace upstream catalog source
-kubectl apply -f - <<EOF
+kubectl apply -f - --server-side --force-conflicts <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
@@ -200,7 +200,7 @@ spec:
       interval: 5m
 EOF
 
-kubectl apply -f - <<EOF
+kubectl apply -f - --server-side --force-conflicts <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
@@ -215,18 +215,13 @@ spec:
   source: devworkspace-operator-catalog
   sourceNamespace: openshift-marketplace
   #startingCSV: devworkspace-operator.v0.16.0
-  startingCSV: devworkspace-operator.v0.18.0-dev.5
+  startingCSV: devworkspace-operator.v0.18.0-dev.10
 EOF
-
-## Patch DWO to use static service account
-oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces --type=merge \
-  --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
 ```
 
 ## 9. Install DevSpaces Operator
 
 ```bash
-
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
@@ -264,6 +259,114 @@ spec:
 EOF
 ```
 
+## 10. Instantiate Che cluster
+
+```bash
+cat <<EOF | oc apply -f - --server-side --force-conflicts
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: devspaces
+  namespace: openshift-devspaces
+spec:
+  components:
+    cheServer:
+      debug: false
+      logLevel: INFO
+    dashboard: {}
+    database:
+      credentialsSecretName: postgres-credentials
+      externalDb: false
+      postgresDb: dbche
+      postgresHostName: postgres
+      postgresPort: "5432"
+      pvc:
+        claimSize: 1Gi
+        storageClass: "px-repl2-block" #"gce-ssd-csi"
+    devWorkspace:
+      ## By default, a user can run only one workspace at a time. You can enable users to run multiple workspaces simultaneously.
+      runningLimit: "1"
+    devfileRegistry: {}
+    imagePuller:
+      enable: false
+      #spec:
+      #  imagePullerImage: registry.redhat.io/devspaces/imagepuller-rhel8@sha256:704522d3c78929941e101f436b7acfee41680a4cb158bfad70dacd5d63198a2a # tag: 3.1-12
+    metrics:
+      enable: true
+    pluginRegistry: {}
+  containerRegistry: {}
+  devEnvironments:
+    secondsOfRunBeforeIdling: -1
+    secondsOfInactivityBeforeIdling: 900 # -1 # to disable uncomment
+    disableContainerBuildCapabilities: true
+    ## until https://github.com/eclipse/che/issues/21760 is addressed
+    defaultEditor: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
+    defaultComponents:
+      - name: universal-developer-image
+        container:
+          image: registry.ford.com/devspaces/udi-ubi8:20221111-2306
+          sourceMapping: /projects
+          memoryLimit: 6Gi
+          memoryRequest: 1Gi
+          cpuLimit: 4000m
+          cpuRequest: 1000m
+          mountSources: true
+    defaultNamespace:
+      template: <username>-devspaces
+      autoProvision: false # <= true by default
+    storage:
+      pvcStrategy: per-user ## per-user | per-workspace |
+      perUserStrategyPvcConfig:
+        claimSize: 5Gi
+        storageClass: px-repl2-block
+      perWorkspaceStrategyPvcConfig:
+        claimSize: 5Gi
+        storageClass: px-repl2-block
+  gitServices:
+    github:
+      - endpoint: "https://github.ford.com"
+        secretName: github-oauth-config
+        # https://github.com/eclipse/che/issues/21724
+        disableSubdomainIsolation: false
+  ## https://github.com/kubermatic/community-components/blob/master/components/eclipse-che/templates/org_v2_checluster.yaml
+  networking:
+    auth:
+      gateway:
+        configLabels:
+          app: che
+          component: che-gateway-config
+EOF
+```
+
+## Patch DWCO
+
+```bash
+kubectl apply -f - --server-side --force-conflicts <<EOF
+kind: DevWorkspaceOperatorConfig
+apiVersion: controller.devfile.io/v1alpha1
+metadata:
+  name: devworkspace-operator-config
+  namespace: openshift-operators
+config:
+  workspace:
+    defaultStorageSize:
+      common: 5Gi
+    storageClassName: px-repl2-block
+    #imagePullPolicy: Always
+    #idleTimeout: '1m'
+  #routing:
+  #  clusterHostSuffix: apps.foobar.com
+  #  defaultRoutingClass: ${DEFAULT_ROUTING}
+EOF
+
+## Patch DWO to use static service account
+oc get DevWorkspaceOperatorConfig -A
+
+oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces --type=merge \
+  --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
+```
+
+<!--
 ## Installer
 
 ```bash
@@ -286,7 +389,6 @@ ${GITOPS_REPO}/refs/installDevSpacesFromLatestIIB.sh -t 3.3 --quay --no-checlust
 ## Delete
 
 ```bash
-
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 ## https://issues.redhat.com/browse/CRW-3187?
 ## https://github.com/l0rd/che-blog/blob/building-container-images-rootless/_posts/2022-09-27-building-container-images.adoc
@@ -364,7 +466,10 @@ spec:
           app: che
           component: che-gateway-config
 EOF
+```
 
+
+```bash
 oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]'
 
 oc get csv -A | grep -E 'devworkspace-operator' | awk '{print "oc delete csv "$2" -n "$1}' | bash
@@ -613,6 +718,7 @@ spec:
       interval: 10m0s
 EOF
 ```
+-->
 
 ## Refs
 

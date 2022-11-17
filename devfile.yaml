@@ -5,7 +5,7 @@ metadata:
   version: 1.0.0
 attributes:
   controller.devfile.io/storage-type: per-workspace # per-user | per-workspace | ephemeral
-  controller.devfile.io/scc: container-build
+  #controller.devfile.io/scc: container-build
   #controller.devfile.io/runtime-class: kata ## to run a DevWorkspace using the kata containers runtime
   #.vscode/extensions.json: |
   #  {
@@ -84,13 +84,13 @@ components:
       #              expirationSeconds: 3600
       #              path: token
       #        defaultMode: 420
-      env:
-        - name: GOCACHE
-          value: /tmp/.cache
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/run/secret/cloud.google.com/credentials_config.json
-        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-          value: /var/run/secret/cloud.google.com/credentials_config.json
+      #env:
+      #  - name: GOCACHE
+      #    value: /tmp/.cache
+      #  - name: GOOGLE_APPLICATION_CREDENTIALS
+      #    value: /var/run/secret/cloud.google.com/credentials_config.json
+      #  - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+      #    value: /var/run/secret/cloud.google.com/credentials_config.json
       endpoints:
         - name: webapp
           targetPort: 8080 ## Go sample listens on 8080
@@ -100,11 +100,11 @@ components:
           secure: true
           #attributes:
           #  urlRewriteSupported: false
-      #volumeMounts:
-      #  - name: m2volume
-      #    path: /home/user/.m2
-      #  - name: seleniumvolume
-      #    path: /dev/shm
+      ##volumeMounts:
+      ##  - name: m2volume
+      ##    path: /home/user/.m2
+      ##  - name: seleniumvolume
+      ##    path: /dev/shm
   - name: hugo
     container:
       image: registry.ford.com/pipelines/hugo:0.105.0

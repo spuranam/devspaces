@@ -106,6 +106,15 @@ If we were to switch the OpenShift IdP causes user to looses access to their wor
 
 DevSpace v3.3 does not honor the storageClass defined in the CR, [for example](./CheCluster.yaml#L56)
 
+## 10. Podman/Buildah support
+
+Setting `spec.devEnvironments.disableContainerBuildCapabilities` to `false` leads to this error:
+
+```bash
+Danger alert:Failed to open the workspace
+Error provisioning rbac: roles.rbac.authorization.k8s.io "devworkspace-use-container-build" is forbidden: user "system:serviceaccount:openshift-operators:devworkspace-controller-serviceaccount" (groups=["system:serviceaccounts" "system:serviceaccounts:openshift-operators" "system:authenticated"]) is attempting to grant RBAC permissions not currently held: {APIGroups:["security.openshift.io"], Resources:["securitycontextconstraints"], ResourceNames:["container-build"], Verbs:["use"]}
+```
+
 
 ## Refs
 - [Support UBI9](https://issues.redhat.com/browse/CRW-3261)
