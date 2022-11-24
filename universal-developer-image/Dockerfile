@@ -7,13 +7,14 @@ ARG \
   BAT_VERSION=0.22.1 \
   BATS_VERSION=1.8.2 \
   #BUILDKIT_VERSION=0.10.4 \
-  CLOUD_SQL_PROXY_SHA256SUM=aeca09b2b8a8060b5ef7dfdac41578b4a317ff550f24cae34f18e343a3211d48 \
-  CLOUD_SQL_PROXY_VERSION=1.33.0 \
+  CLOUD_SQL_PROXY_SHA256SUM=fb66afb1cb8ee730314088eb7b299398bda6c0434b9b383b27a26b8951e775c5 \
+  CLOUD_SQL_PROXY_VERSION=1.33.1 \
+  CLOUD_CODE_VERSION=1.20.4 \
   #CRANE_VERSION=0.11.0 \
   DOCKER_CREDENTIAL_GCR_VER=2.1.6 \
   E2FSPROGS_VERSION=1.46.5 \
-  GCLOUD_VERSION=409.0.0 \
-  GH_VERSION=2.20.0 \
+  GCLOUD_VERSION=410.0.0 \
+  GH_VERSION=2.20.2 \
   GO_VERSION=1.19.3 \
   GO_SHA256SUM='74b9640724fd4e6bb0ed2a1bc44ae813a03f1e72a4c76253e2d5c015494430ba' \
   #GOMPLATE_VERSION=3.11.2 \
@@ -21,11 +22,11 @@ ARG \
   #GRYPE_VERSION=0.50.2 \
   HADOLINT_VERSION=2.10.0 \
   HELM_VERSION=3.10.1 \
-  JAVA_11_VERSION=11.0.16.1 \
-  JAVA_17_VERSION=17.0.4.1 \
-  JAVA_8_VERSION=8.0.345 \
-  JAVA_DEFAULT_VERSION=11.0.16.1 \
-  JAVA_GRAL_VERSION=22.2.r17 \
+  JAVA_11_VERSION=11.0.17 \
+  JAVA_17_VERSION=17.0.5 \
+  JAVA_8_VERSION=8.0.352 \
+  JAVA_DEFAULT_VERSION=11.0.17 \
+  JAVA_GRAL_VERSION=22.3.0.1.r17 \
   KAMEL_VERSION=1.9.2 \
   KN_VERSION=1.7.0 \
   KREW_VERSION=0.4.3 \
@@ -42,20 +43,21 @@ ARG \
   ODO_VERSION=3.2.0 \
   PS_VERSION=7.3.0 \
   PSEDTSVC_VERSION=3.4.5 \
-  RCLONE_VERSION=1.60.0 \
+  RCLONE_VERSION=1.60.1 \
   RIPGREP_VERSION=13.0.0 \
-  ROBOCONFIG_VERSION=0.27.2 \
+  ROBOCONFIG_VERSION=0.28.0 \
   ROXCTL_VERSION=3.72.2 \
   SHELLCHECK_VERSION=0.8.0 \
   #SYFT_VERSION=0.57.0 \
-  SKAFFOLD_VERSION=2.0.1 \
+  SKAFFOLD_VERSION=2.0.2 \
   TELLER_VERSION=1.5.6 \
-  TERRAFORM_VER=1.3.4 \
+  TERRAFORM_VER=1.3.5 \
   TKNCLI_VERSION=0.27.0 \
   TRIVY_VERSION=0.34.0 \
-  TILT_VERSION=0.30.11 \
+  TILT_VERSION=0.30.12 \
   VAULT_VERSION=1.12.1 \
-  YQ_VERSION=4.30.1
+  WIFWIF_VERSION=1.2.5 \
+  YQ_VERSION=4.30.4
 
 ENV \
   LANG='en_US.UTF-8' \
@@ -620,6 +622,36 @@ RUN set -ex && \
   rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
   rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
   ###==>
+  #################################################################
+  # install wifwif
+  #################################################################
+  curl --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" \
+  --retry "${CURL_RETRY:-5}" \
+  --retry-delay "${CURL_RETRY_DELAY:-0}" \
+  --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" \
+  --progress-bar --location --fail --show-error \
+  --output /tmp/wifwif_${WIFWIF_VERSION}_linux_amd64.zip \
+  --url "https://storage.googleapis.com/iac-team-prod-artifacts/wifwif/${WIFWIF_VERSION}/wifwif_${WIFWIF_VERSION}_linux_amd64.zip" && \
+  unzip /tmp/wifwif_${WIFWIF_VERSION}_linux_amd64.zip -d /tmp && \
+  mv /tmp/wifwif /usr/local/bin/wifwif && \
+  chmod 0755 /usr/local/bin/wifwif && \
+  rm -f /tmp/wifwif_${WIFWIF_VERSION}_linux_amd64.zip && \
+  rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
+  rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
+  ##################################################################
+  ### install google cloudcode
+  ##################################################################
+  mkdir -p ${HOME}/vscode-extensions && \
+  curl --progress-bar --location --fail --show-error \
+  --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" \
+  --retry "${CURL_RETRY:-5}" \
+  --retry-delay "${CURL_RETRY_DELAY:-0}" \
+  --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" \
+  --output ${HOME}/vscode-extensions/cloudcode.vsix \
+  --url "https://storage.googleapis.com/iac-team-prod-artifacts/vscode-extensions/GoogleCloudTools.cloudcode-${CLOUD_CODE_VERSION}.vsix" && \
+  chmod 0755 ${HOME}/vscode-extensions/cloudcode.vsix && \
+  rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
+  rm -rf /var/cache/* /var/log/dnf* /var/log/yum.* && \
   ##################################################################
   ### install cloudsql-proxy
   ##################################################################

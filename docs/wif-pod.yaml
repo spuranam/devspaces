@@ -18,7 +18,7 @@ metadata:
         "type": "external_account"
       }
 spec:
-  serviceAccountName: devspaces-sa
+  serviceAccountName: devspace
   volumes:
     - name: bound-sa-token
       projected:
@@ -43,7 +43,7 @@ spec:
                     fieldPath: metadata.annotations['gcp-openshift-federation-config']
   containers:
     - name: devspace
-      image: registry.ford.com/devspaces/udi-ubi8:20221021-1235
+      image: registry.ford.com/pipelines/gcloud-sdk:410.0.0-20221116-1815
       args: ["tail", "-f", "/dev/null"]
       imagePullPolicy: IfNotPresent
       volumeMounts:

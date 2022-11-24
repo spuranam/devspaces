@@ -75,7 +75,7 @@ metadata:
   namespace: openshift-operators
 spec:
   channel: stable
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   name: kubernetes-imagepuller-operator
   source: community-operators
   sourceNamespace: openshift-marketplace
@@ -92,7 +92,7 @@ spec:
   daemonsetName: k8s-image-puller
   deploymentName: kubernetes-image-puller
   imagePullerImage: 'quay.io/eclipse/kubernetes-image-puller:next'
-  images: "img-1=quay.io/devspaces/code-rhel8:3.3;img-2=quay.io/devspaces/idea-rhel8:3.3;img-3=quay.io/devspaces/machineexec-rhel8:3.3;img-4=quay.io/devspaces/theia-endpoint-rhel8:3.3;img-5=quay.io/devspaces/theia-rhel8:3.3;img-6=quay.io/devspaces/udi-rhel8:3.3;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221111-2306;img-9=registry.ford.com/pipelines/hugo:0.105.0"
+  images: "img-1=quay.io/devspaces/code-rhel8:next;img-2=quay.io/devspaces/idea-rhel8:next;img-3=quay.io/devspaces/machineexec-rhel8:next;img-4=quay.io/devspaces/theia-endpoint-rhel8:next;img-5=quay.io/devspaces/theia-rhel8:next;img-6=quay.io/devspaces/udi-rhel8:next;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221123-1730;img-9=registry.ford.com/pipelines/hugo:0.106.0"
 EOF
 ```
 
@@ -180,6 +180,7 @@ spec:
 EOF
 ```
 
+<!--
 ## 8. Install DevWorkspace Operator
 
 ```bash
@@ -210,14 +211,16 @@ metadata:
   namespace: openshift-operators
 spec:
   channel: next
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   name: devworkspace-operator
   source: devworkspace-operator-catalog
   sourceNamespace: openshift-marketplace
   #startingCSV: devworkspace-operator.v0.16.0
-  startingCSV: devworkspace-operator.v0.18.0-dev.10
+  startingCSV: devworkspace-operator.v0.17.0
+  #startingCSV: devworkspace-operator.v0.18.0-dev.10
 EOF
 ```
+-->
 
 ## 9. Install DevSpaces Operator
 
@@ -230,7 +233,8 @@ metadata:
   namespace: openshift-operators
 spec:
   sourceType: grpc
-  image: quay.io/devspaces/iib:3.3-v4.11-x86_64
+  #image: quay.io/devspaces/iib:3.3-v4.11-x86_64
+  image: quay.io/devspaces/iib:next-v4.11-x86_64
   publisher: IIB testing devspaces
   displayName: IIB testing catalog devspaces
 EOF
@@ -251,11 +255,12 @@ metadata:
   namespace: openshift-operators
 spec:
   channel: fast
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   name: devspaces
   source: devspaces-fast
   sourceNamespace: openshift-operators
-  startingCSV: devspacesoperator.v3.3.0
+  #startingCSV: devspacesoperator.v3.3.0
+  startingCSV: devspacesoperator.v3.4.0
 EOF
 ```
 
@@ -298,13 +303,13 @@ spec:
   devEnvironments:
     secondsOfRunBeforeIdling: -1
     secondsOfInactivityBeforeIdling: 900 # -1 # to disable uncomment
-    disableContainerBuildCapabilities: true
+    disableContainerBuildCapabilities: false
     ## until https://github.com/eclipse/che/issues/21760 is addressed
     defaultEditor: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
     defaultComponents:
       - name: universal-developer-image
         container:
-          image: registry.ford.com/devspaces/udi-ubi8:20221111-2306
+          image: registry.ford.com/devspaces/udi-ubi8:20221123-1730
           sourceMapping: /projects
           memoryLimit: 6Gi
           memoryRequest: 1Gi
@@ -341,6 +346,8 @@ EOF
 ## Patch DWCO
 
 ```bash
+
+
 kubectl apply -f - --server-side --force-conflicts <<EOF
 kind: DevWorkspaceOperatorConfig
 apiVersion: controller.devfile.io/v1alpha1
@@ -349,6 +356,12 @@ metadata:
   namespace: openshift-operators
 config:
   workspace:
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        add:
+        - SETGID
+        - SETUID
     defaultStorageSize:
       common: 5Gi
     storageClassName: px-repl2-block
@@ -359,11 +372,15 @@ config:
   #  defaultRoutingClass: ${DEFAULT_ROUTING}
 EOF
 
+
 ## Patch DWO to use static service account
 oc get DevWorkspaceOperatorConfig -A
 
 oc patch DevWorkspaceOperatorConfig/devworkspace-config -n openshift-devspaces --type=merge \
   --patch='{"config":{"workspace":{"serviceAccount":{"serviceAccountName":"devspace","disableCreation":true}}}}'
+
+WORKSPACE_POD=$(kubectl get po -l controller.devfile.io/devworkspace_name=${DEVWORKSPACE_NAME} -o=custom-columns=NAME:.metadata.name --no-headers=true)
+kubectl exec -it ${WORKSPACE_POD} -c hugo -- hugo
 ```
 
 <!--
