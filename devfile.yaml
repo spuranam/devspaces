@@ -7,111 +7,22 @@ attributes:
   controller.devfile.io/storage-type: per-workspace # per-user | per-workspace | ephemeral
   controller.devfile.io/scc: container-build
   #controller.devfile.io/runtime-class: kata ## to run a DevWorkspace using the kata containers runtime
-  ## https://github.com/devfile/devworkspace-operator/blob/main/docs/additional-configuration.adoc#pod-overrides
-  ## https://github.com/devfile/devworkspace-operator/blob/main/pkg/constants/attributes.go
-  pod-overrides:
-    metadata:
-      annotations:
-        gcp-openshift-federation-config: |
-          {
-            "audience": "//iam.googleapis.com/projects/219764264310/locations/global/workloadIdentityPools/sb105-2cf66/providers/sb105-2cf66",
-            "credential_source": {
-              "file": "/var/run/secrets/openshift/serviceaccount/token",
-              "format": {
-                "type": "text"
-              }
-            },
-            "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/sa-pipeline@ford-0b080a912fa97c1cf8fb3986.iam.gserviceaccount.com:generateAccessToken",
-            "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
-            "token_url": "https://sts.googleapis.com/v1/token",
-            "type": "external_account"
-          }
-    spec:
-      volumeMounts:
-        - name: gcp-credentialsrequest-credentials-vol
-          readOnly: true
-          mountPath: /var/run/secrets/google
-        - name: bound-sa-token
-          readOnly: true
-          mountPath: /var/run/secrets/openshift/serviceaccount
-      env:
-        - name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/run/secrets/google/credentials_config.json
-        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-          value: /var/run/secrets/google/credentials_config.json
-      volumes:
-        - name: gcp-credentialsrequest-credentials-vol
-          projected:
-            sources:
-              - downwardAPI:
-                  items:
-                    - path: credentials_config.json
-                      fieldRef:
-                        fieldPath: metadata.annotations['gcp-openshift-federation-config']
-        - name: bound-sa-token
-          projected:
-            sources:
-              - serviceAccountToken:
-                  audience: openshift
-                  expirationSeconds: 3600
-                  path: token
-            defaultMode: 420
-  #.vscode/extensions.json: |
-  #  {
-  #    "recommendations": [
-  #      "golang.go",
-  #      "ms-kubernetes-tools.vscode-kubernetes-tools",
-  #      "redhat.vscode-yaml",
-  #      "EditorConfig.EditorConfig",
-  #      "googlecloudtools.cloudcode",
-  #      "redhat.vscode-openshift-connector",
-  #      //"ms-vscode.powershell",
-  #      //"errata-ai.vale-server",
-  #    ]
-  #  }
-#variables:
-#  gcpProjectID: 219764264310
-#  gcpProject: ford-0b080a912fa97c1cf8fb3986
-#  gcpServiceAccount: sa-pipeline
-#  workloadIdentityPool: sb105-2cf66
-#parent:
-#  id: go
-#  registryUrl: "https://registry.devfile.io"
-#starterProjects:
-#  - name: hugo-example
-#    git:
-#      checkoutFrom:
-#        remote: origin
-#        revision: main
-#      remotes:
-#        origin: https://github.ford.com/spuranam/devspace-sample.git
-#    subDir: app
-## https://github.com/eclipse/che/issues/21315
-#projects:
-#   - name: devspace-sample
-#     #clonePath: go/src/github.com/acme/my-go-project
-#     git:
-#       checkoutFrom:
-#         remote: origin
-#         revision: main
-#       remotes:
-#         origin: https://github.ford.com/spuranam/devspace-sample.git
-#         upstream: https://github.ford.com/Containers/devspace-sample.git
 components:
   - name: tools
     container:
-      image: registry.ford.com/devspaces/udi-ubi8:20221123-1730
-      #image: quay.io/azatsary/ubi8:pwrsh
-      #image: quay.io/devspaces/udi-rhel8:3.3
-      #image: quay.io/devspaces/udi-rhel8:next
+      image: registry.ford.com/devspaces/udi-ubi8:20221201-1554
       memoryLimit: 6Gi
       memoryRequest: 1Gi
       cpuLimit: 4000m
       cpuRequest: 1000m
       mountSources: true
-      #env:
-      #  - name: GOCACHE
-      #    value: /tmp/.cache
+      env:
+        #- name: GOCACHE
+        #  value: /tmp/.cache
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/run/secrets/google/credentials_config.json
+        - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+          value: /var/run/secrets/google/credentials_config.json
       endpoints:
         - name: webapp
           targetPort: 8080 ## Go sample listens on 8080
@@ -128,7 +39,7 @@ components:
       ##    path: /dev/shm
   - name: hugo
     container:
-      image: registry.ford.com/pipelines/hugo:0.106.0
+      image: registry.ford.com/pipelines/hugo:0.107.0
       memoryLimit: 2Gi
       memoryRequest: 500Mi
       cpuLimit: 2000m
@@ -250,6 +161,7 @@ commands:
       label: "HUGO: start hugo server"
       component: hugo
       commandLine: |
+        #alias hugo="kubectl exec -it $(kubectl get po -l controller.devfile.io/devworkspace_name=${DEVWORKSPACE_NAME} -o=custom-columns=NAME:.metadata.name --no-headers=true) -c hugo -- hugo $@"
         #WORKSPACE_POD=$(kubectl get po -l controller.devfile.io/devworkspace_name=${DEVWORKSPACE_NAME} -o=custom-columns=NAME:.metadata.name --no-headers=true)
         #kubectl exec -it ${WORKSPACE_POD} -c hugo -- hugo --help
 

@@ -1,4 +1,4 @@
-[![Dev](https://img.shields.io/static/v1?label=Open%20in&message=DevSpaces%20server%20(with%20VS%20Code)&logo=eclipseche&color=FDB940&labelColor=525C86&?logoWidth=40&style=for-the-badge)](https://devspaces.apps.sb105.caas.gcp.ford.com/dashboard/#https://github.ford.com/Containers/devspace)
+[![Dev](https://img.shields.io/static/v1?label=Open%20in&message=DevSpaces%20server%20(with%20VS%20Code)&logo=eclipseche&color=FDB940&labelColor=525C86&?logoWidth=40&style=for-the-badge)](https://devspaces.apps.sb105.caas.gcp.ford.com/dashboard/#https://github.ford.com/Containers/devspace-sample)
 
 
 ## DevSpace sample
@@ -52,6 +52,7 @@ yq eval 'del(.metadata.creationTimestamp)' - | kubectl apply -f -
 ## WIF Configs
 
 ```bash
+kubectl apply -f - -n spuranam-ford-com-devspaces --server-side --force-conflicts <<EOF
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -61,10 +62,10 @@ metadata:
     controller.devfile.io/mount-to-devworkspace: 'true'
     controller.devfile.io/watch-configmap: 'true'
   annotations:
-    controller.devfile.io/mount-path: /var/run/secret/cloud.google.com/credentials_config.json
-    controller.devfile.io/mount-as: subpath # file | subpath
+    controller.devfile.io/mount-path: /var/run/secrets/google
+    controller.devfile.io/mount-as: file # file | subpath
 data:
-  google-creds.json: |
+  credentials_config.json: |
     {
       "audience": "//iam.googleapis.com/projects/219764264310/locations/global/workloadIdentityPools/sb105-2cf66/providers/sb105-2cf66",
       "credential_source": {
@@ -78,6 +79,23 @@ data:
       "token_url": "https://sts.googleapis.com/v1/token",
       "type": "external_account"
     }
+EOF
+```
+
+### Git SSH keys
+
+```bash
+gh auth login --hostname github.ford.com --git-protocol ssh --web
+
+kubectl create secret generic git-ssh-key \
+  --from-file=id_ed25519=${HOME}/.ssh/id_ed25519 \
+  --from-file=id_ed25519.pub=${HOME}/.ssh/id_ed25519.pub \
+  --dry-run=client -o yaml | \
+yq eval '.metadata.labels."controller.devfile.io/watch-secret" = "true"' - |
+yq eval '.metadata.labels."controller.devfile.io/mount-to-devworkspace" = "true"' - |
+yq eval '.metadata.annotations."controller.devfile.io/mount-path" = "/home/user/.ssh"' - |
+yq eval '.metadata.annotations."controller.devfile.io/mount-as" = "subpath"' - |
+yq eval 'del(.metadata.creationTimestamp)' - | kubectl apply -f -
 ```
 
 ## Install DevSpace

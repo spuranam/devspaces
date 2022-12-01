@@ -5,38 +5,35 @@ if [ ! -d "${HOME}" ]; then
   mkdir -p "${HOME}"
 fi
 
-# export USER_ID=$(id -u)
-# export GROUP_ID=$(id -g)
-# USER=${USER_NAME:-user}
-# if [ "$USER_ID" != "0" ] && [ -w /etc/passwd ]; then
-#   grep -v "^${USER}:" /etc/passwd >/tmp/passwd
-#   echo "${USER}:x:$(id -u):0:Container user:${HOME}:/bin/bash" >>/tmp/passwd
-#   cat /tmp/passwd >/etc/passwd
-#   rm /tmp/passwd
-# fi
-# if [ "$USER_ID" != "0" ] && [ -w /etc/group ]; then
-#   grep -v "^${USER}:" /etc/group >/tmp/group
-#   echo "${USER}:x:$(id -g):" >>/tmp/group
-#   cat /tmp/group >/etc/group
-#   rm /tmp/group
-# fi
-
 export USER_ID=$(id -u)
 export GROUP_ID=$(id -g)
 
 if ! grep -Fq "${USER_ID}" /etc/passwd; then
-  # current user is an arbitrary
-  # user (its uid is not in the
-  # container /etc/passwd). Let's fix that
-  cat ${HOME}/passwd.template |
-    sed "s/\${USER_ID}/${USER_ID}/g" |
-    sed "s/\${GROUP_ID}/${GROUP_ID}/g" |
-    sed "s/\${HOME}/\/home\/user/g" >/etc/passwd
+  # current user is an arbitrary user (its uid is not in the container /etc/passwd)
 
-  cat ${HOME}/group.template |
-    sed "s/\${USER_ID}/${USER_ID}/g" |
-    sed "s/\${GROUP_ID}/${GROUP_ID}/g" |
-    sed "s/\${HOME}/\/home\/user/g" >/etc/group
+  if [ -w /etc/passwd ]; then
+    grep -v "^${USER}:" /etc/passwd >/tmp/passwd
+    echo "${USER}:x:${USER_ID}:0:${USER} user:${HOME}:/bin/zsh" >>/tmp/passwd
+    cat /tmp/passwd >/etc/passwd
+    rm -f /tmp/passwd
+  fi
+
+  if [ -w /etc/group ]; then
+    grep -v "^${USER}:" /etc/group >/tmp/group
+    echo "${USER}:x:${GROUP_ID}:" >>/tmp/group
+    cat /tmp/group >/etc/group
+    rm -f /tmp/group
+  fi
+
+  #cat ${HOME}/passwd.template |
+  #  sed "s/\${USER_ID}/${USER_ID}/g" |
+  #  sed "s/\${GROUP_ID}/${GROUP_ID}/g" |
+  #  sed "s/\${HOME}/\/home\/user/g" >/etc/passwd
+
+  #cat ${HOME}/group.template |
+  #  sed "s/\${USER_ID}/${USER_ID}/g" |
+  #  sed "s/\${GROUP_ID}/${GROUP_ID}/g" |
+  #  sed "s/\${HOME}/\/home\/user/g" >/etc/group
 fi
 
 ## Grant access to projects volume in case of non root user with sudo rights
@@ -69,5 +66,16 @@ fi
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
 fi
+
+if [[ -d /projects ]]; then
+  mkdir -p /projects/.ssh
+  chmod -R 0775 /projects/.ssh
+  chown -R ${USER_ID}:${GROUP_ID}
+  ln -sf /projects/.ssh ${HOME}/.ssh
+fi
+
+## execute all custom scripts projected via configMap
+#find /projects/custom-scripts -name '*.sh' -type f -maxdepth 1 -print0 | xargs -r0 -n1 bash -c "$@"
+find /projects/custom-scripts -name '*.sh' -type f -print0 | parallel -r0 -n 1 -j 4
 
 exec "$@"
