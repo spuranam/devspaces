@@ -1,6 +1,5 @@
 [![Dev](https://img.shields.io/static/v1?label=Open%20in&message=DevSpaces%20server%20(with%20VS%20Code)&logo=eclipseche&color=FDB940&labelColor=525C86&?logoWidth=40&style=for-the-badge)](https://devspaces.apps.sb105.caas.gcp.ford.com/dashboard/#https://github.ford.com/Containers/devspace-sample)
 
-
 ## DevSpace sample
 
 A sample [devfile](./devfile.yaml)

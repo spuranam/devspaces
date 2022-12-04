@@ -6,11 +6,12 @@ metadata:
 attributes:
   controller.devfile.io/storage-type: per-workspace # per-user | per-workspace | ephemeral
   controller.devfile.io/scc: container-build
-  #controller.devfile.io/runtime-class: kata ## to run a DevWorkspace using the kata containers runtime
 components:
   - name: tools
     container:
-      image: registry.ford.com/devspaces/udi-ubi8:20221201-1554
+      image: registry.ford.com/devspaces/udi-ubi8:20221204-0028
+      command:
+        - /entrypoint.sh
       memoryLimit: 6Gi
       memoryRequest: 1Gi
       cpuLimit: 4000m
@@ -40,6 +41,7 @@ components:
   - name: hugo
     container:
       image: registry.ford.com/pipelines/hugo:0.107.0
+      args: ["tail", "-f", "/dev/null"]
       memoryLimit: 2Gi
       memoryRequest: 500Mi
       cpuLimit: 2000m
@@ -51,7 +53,6 @@ components:
           protocol: https
           exposure: public # public | internal | none
           secure: true
-      args: ["tail", "-f", "/dev/null"]
   #- name: projects
   #  #volume: { ephemeral: true }
   #  volume:

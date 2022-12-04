@@ -15,10 +15,10 @@ ARG \
   SGET_SHA256SUM=36c25be6bb496ccd57e676a93edfb05931517443e6f5ce1e51f08650c1bb260f \
   CONFTEST_VERSION=0.36.0 \
   CONFTEST_SHA256SUM=d98783276c4fd47c779a1ece4c0decba9ee6462687839d25389882a468c362cc \
-  CNQUERY_VERSION=7.6.0 \
-  CNQUERY_SHA256SUM=d838b2b222b3cfea8ef646283385422266489044ab4d5f48d91326938786e856 \
-  CNSPEC_VERSION=7.6.0 \
-  CNSPEC_SHA256SUM=a659a953c7e6669c79809eaa84c04458a5544d34f84f67a9a5d84d6969b32a82 \
+  CNQUERY_VERSION=7.6.1 \
+  CNQUERY_SHA256SUM=3b3962092ced31c607a9ad3d9ad1b969433c0a8689f6c5a065fcec59ae2a8912 \
+  CNSPEC_VERSION=7.6.1 \
+  CNSPEC_SHA256SUM=af7acc0dbc2314d42881033ada9fdc876523e5b973694be91206390444df3292 \
   E2FSPROGS_VERSION=1.46.5 \
   GCLOUD_VERSION=410.0.0 \
   GCLOUD_SHA256SUM=de3525b315d7ea3c3696eba466ddd97313ccad45f6f684bcdd9224374baa6c08 \
@@ -76,7 +76,8 @@ ARG \
   VALE_VERSION=2.21.2 \
   VALE_SHA256SUM=26e77f466450675f4caea523c900991ecd19b7032e3b38f557cb5d75cdd2a6e8 \
   WIFWIF_VERSION=1.2.5 \
-  YQ_VERSION=4.30.5
+  YQ_VERSION=4.30.5 \
+  YQ_SHA256SUM=813d7d5b16a627a1fbbd763cb508fc8f143122f8f7195c872e7367d6295a331a
   #BUILDKIT_VERSION=0.10.4 \
   #BUILDKIT_SHA256SUM=0.10.4 \
   #CRANE_VERSION=0.11.0 \
@@ -104,7 +105,7 @@ ENV \
   SUMMARY="Universal developer image" \
   DESCRIPTION="Image with developers tools, languages SDK and runtimes included." \
   #PATH=/home/user/google-cloud-sdk/bin:/home/user/.local/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/home/user/.krew/bin:/home/user/.cargo/bin:/usr/local/PowerShellEditorServices:${PATH} \
-  PATH="/home/user/.local/bin:/home/user/google-cloud-sdk/bin:/home/user/.local/bin:/home/user/.krew/bin:/home/user/.cargo/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+  PATH="/home/user/bin:/home/user/.local/bin:/home/user/google-cloud-sdk/bin:/home/user/.krew/bin:/home/user/.cargo/bin:/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
   PYTHON_VERSION=3.9 \
   PYTHONUNBUFFERED=1 \
   PYTHONIOENCODING=UTF-8 \
@@ -688,6 +689,7 @@ RUN set -ex && \
   --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" \
   --output /usr/local/bin/yq \
   --url "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64" && \
+  echo "${YQ_SHA256SUM} /usr/local/bin/yq" | sha256sum -c - && \
   chmod 0755 /usr/local/bin/yq && \
   ##################################################################
   ### install argocd-vault-plugin
@@ -851,35 +853,36 @@ RUN set -ex && \
   # install fonts
   #################################################################
   mkdir -p ${HOME}/.local/share/fonts && \
-  curl --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" --retry "${CURL_RETRY:-5}" --retry-delay "${CURL_RETRY_DELAY:-0}" --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" --progress-bar --location --fail --show-error --output "${HOME}/.local/share/fonts/Go Mono Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/Go-Mono/Regular/complete/Go%20Mono%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
-  curl --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" --retry "${CURL_RETRY:-5}" --retry-delay "${CURL_RETRY_DELAY:-0}" --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" --progress-bar --location --fail --show-error --output "${HOME}/.local/share/fonts/Meslo LG S DZ Regular Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/Meslo/S-DZ/Regular/complete/Meslo%20LG%20S%20DZ%20Regular%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
-  curl --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" --retry "${CURL_RETRY:-5}" --retry-delay "${CURL_RETRY_DELAY:-0}" --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" --progress-bar --location --fail --show-error --output "${HOME}/.local/share/fonts/Sauce Code Pro Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/SourceCodePro/Regular/complete/Sauce%20Code%20Pro%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
-  curl --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" --retry "${CURL_RETRY:-5}" --retry-delay "${CURL_RETRY_DELAY:-0}" --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" --progress-bar --location --fail --show-error --output "${HOME}/.local/share/fonts/Noto Mono Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/Noto/Mono/complete/Noto%20Mono%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
-  curl --connect-timeout "${CURL_CONNECTION_TIMEOUT:-20}" --retry "${CURL_RETRY:-5}" --retry-delay "${CURL_RETRY_DELAY:-0}" --retry-max-time "${CURL_RETRY_MAX_TIME:-60}" --progress-bar --location --fail --show-error --output "${HOME}/.local/share/fonts/Terminess (TTF) Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/Terminus/terminus-ttf-4.40.1/Regular/complete/Terminess%20(TTF)%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
+  curl -Lfso "${HOME}/.local/share/fonts/Go Mono Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/Go-Mono/Regular/complete/Go%20Mono%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
+  curl -Lfso "${HOME}/.local/share/fonts/Sauce Code Pro Nerd Font Complete Mono.ttf" --url "https://github.com/ryanoasis/nerd-fonts/blob/v${NERD_FONT_VERSION}/patched-fonts/SourceCodePro/Regular/complete/Sauce%20Code%20Pro%20Nerd%20Font%20Complete%20Mono.ttf?raw=true" && \
+  #################################################################
+  # install fonts
+  #################################################################
   fc-cache -fv && \
-  #################################################################
-  # Add .zsh configuration
-  #################################################################
-  cp /.p10k.zsh ${HOME}/.p10k.zsh && \
-  cp /.zshrc ${HOME}/.zshrc && \
-  cp /.zprofile ${HOME}/.zprofile && \
   #################################################################
   # install oh-my-zsh
   #################################################################
   git clone https://github.com/robbyrussell/oh-my-zsh.git ${HOME}/.oh-my-zsh && \
-  cp $HOME/.oh-my-zsh/templates/zshrc.zsh-template $HOME/.zshrc && \
+  #cp $HOME/.oh-my-zsh/templates/zshrc.zsh-template $HOME/.zshrc && \
+  cp -f /.zshrc ${HOME}/.zshrc && \
+  #cp /.zprofile ${HOME}/.zprofile && \
   rm -rf ${HOME}/.oh-my-zsh/.git && \
   # Install powerlevel10k theme
-  git clone https://github.com/romkatv/powerlevel10k.git ${HOME}/.oh-my-zsh/custom/themes/powerlevel10k && \
+  rm -rf ${HOME}/.oh-my-zsh/custom/themes/powerlevel10k && \
+  git clone --single-branch --depth 1 https://github.com/romkatv/powerlevel10k.git ${HOME}/.oh-my-zsh/custom/themes/powerlevel10k && \
   rm -rf ${HOME}/.oh-my-zsh/custom/themes/powerlevel10k/.git && \
+  cp -f /.p10k.zsh ${HOME}/.p10k.zsh && \
   # Install syntax highlighting
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
+  rm -rf ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
+  git clone --single-branch --branch 'master' --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
   rm -rf ${HOME}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting.git && \
   # Install zsh autosuggestions
-  git clone https://github.com/zsh-users/zsh-autosuggestions.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+  rm -rf ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
+  git clone --single-branch --branch 'master' --depth 1 https://github.com/zsh-users/zsh-autosuggestions.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions && \
   rm -rf ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions.git && \
   # Install zsh completions
-  git clone https://github.com/zsh-users/zsh-completions.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-completions && \
+  rm -rf ${HOME}/.oh-my-zsh/custom/plugins/zsh-completions && \
+  git clone --single-branch --branch 'master' --depth 1 https://github.com/zsh-users/zsh-completions.git ${HOME}/.oh-my-zsh/custom/plugins/zsh-completions && \
   rm -rf ${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions.git && \
   # ##################################################################
   # # e2fsprogs, required for intellij support
@@ -908,13 +911,11 @@ RUN set -ex && \
   #################################################################
   # ssh configs
   #################################################################
-  mkdir -p ${HOME}/.ssh && \
-  ln -sf /checode/.ssh ${HOME}/.ssh && \
   # Copy the global git configuration to user config as global /etc/gitconfig
   # file may be overwritten by a mounted file at runtime
   cp /etc/gitconfig ${HOME}/.gitconfig && \
-  chown -R ${USER_UID}:0 ${HOME} /etc/passwd /etc/group /home /entrypoint.sh && \
-  chmod -R 0775 ${HOME} /etc/passwd /etc/group /home /entrypoint.sh && \
+  chown -R ${USER_UID}:0 ${HOME} /etc/passwd /etc/group /home /entrypoint.sh /vscode-entrypoint.sh && \
+  chmod -R 0775 ${HOME} /etc/passwd /etc/group /home /entrypoint.sh /vscode-entrypoint.sh && \
   rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* && \
   rm -rf /var/cache/* /var/log/dnf* /var/log/yum.*
 ##################################################################
