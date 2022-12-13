@@ -5,6 +5,7 @@
 A sample [devfile](./devfile.yaml)
 
 ## GCP WIF Binidngs
+
 Run this in GCP to create Workload Identity Federation Bindings, between GCP SA and OCP SA.
 
 ```bash
@@ -43,7 +44,7 @@ kubectl create secret generic image-push-tokens \
 yq eval '.metadata.labels."controller.devfile.io/devworkspace_pullsecret" = "true"' - |
 yq eval '.metadata.labels."controller.devfile.io/watch-secret" = "true"' - |
 yq eval '.metadata.labels."controller.devfile.io/mount-to-devworkspace" = "true"' - |
-yq eval '.metadata.annotations."controller.devfile.io/mount-path" = "/home/user/secrets"' - |
+yq eval '.metadata.annotations."controller.devfile.io/mount-path" = "/etc/secrets"' - |
 yq eval '.metadata.annotations."controller.devfile.io/mount-as" = "file"' - |
 yq eval 'del(.metadata.creationTimestamp)' - | kubectl apply -f -
 ```
@@ -68,7 +69,7 @@ data:
     {
       "audience": "//iam.googleapis.com/projects/219764264310/locations/global/workloadIdentityPools/sb105-2cf66/providers/sb105-2cf66",
       "credential_source": {
-        "file": "/var/run/secrets/openshift/serviceaccount/token",
+        "file": "/etc/secrets/openshift/serviceaccount/token",
         "format": {
           "type": "text"
         }
@@ -115,9 +116,19 @@ A sample [instructions](./docs/container-build.md) to build and run container im
 
 - https://\<che-host\>/swagger/
 
+```bash
+curl -X POST  \
+  -H 'Authorization: Bearer <TOKEN>'\
+  -H "Content-Type: application/yaml" \
+  -d "data=@./docs/devfile-minimal.yaml" \
+  --url "https://devspaces.apps.sb105.caas.gcp.ford.com/api/devfile"
+```
+
 ## Devfile Registry
-- https://registry.devfile.io/viewer
+
+- <https://registry.devfile.io/viewer>
 
 ## Refs
 
-- https://devfile.io/
+- <https://devfile.io>
+- <https://piotrminkowski.com/2022/11/17/development-with-openshift-dev-spaces>
