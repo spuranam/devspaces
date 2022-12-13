@@ -1,4 +1,3 @@
-## https://devfile.io/docs/2.1.0/devfile-schema
 schemaVersion: 2.1.0
 metadata:
   name: devspaces-sample
@@ -9,7 +8,7 @@ attributes:
 components:
   - name: tools
     container:
-      image: registry.ford.com/devspaces/udi-ubi8:20221204-0028
+      image: registry.ford.com/devspaces/udi-ubi8:20221211-2341
       command:
         - /entrypoint.sh
       memoryLimit: 6Gi
@@ -18,29 +17,19 @@ components:
       cpuRequest: 1000m
       mountSources: true
       env:
-        #- name: GOCACHE
-        #  value: /tmp/.cache
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/run/secrets/google/credentials_config.json
         - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
           value: /var/run/secrets/google/credentials_config.json
       endpoints:
         - name: webapp
-          targetPort: 8080 ## Go sample listens on 8080
-          #path: /hello
+          targetPort: 8080
           protocol: https
-          exposure: public # public | internal | none
+          exposure: public
           secure: true
-          #attributes:
-          #  urlRewriteSupported: false
-      ##volumeMounts:
-      ##  - name: m2volume
-      ##    path: /home/user/.m2
-      ##  - name: seleniumvolume
-      ##    path: /dev/shm
   - name: hugo
     container:
-      image: registry.ford.com/pipelines/hugo:0.107.0
+      image: registry.ford.com/pipelines/hugo:0.108.0
       args: ["tail", "-f", "/dev/null"]
       memoryLimit: 2Gi
       memoryRequest: 500Mi
@@ -51,47 +40,53 @@ components:
         - name: hugo-server
           targetPort: 1313
           protocol: https
-          exposure: public # public | internal | none
+          exposure: public
           secure: true
-  #- name: projects
-  #  #volume: { ephemeral: true }
-  #  volume:
-  #    size: 3Gi
-  #- name: m2volume
-  #  volume:
-  #    size: 3G
-  #- name: seleniumvolume
-  #  volume:
-  #    size: 3G
 events:
   postStart:
-    - init-devspace
+    - init
   #preStart:
-  #  - install-dependencies-go-hello-world
+  #  - init
 commands:
-  - id: init-devspace
+  - id: init
     exec:
-      label: "init devspace"
+      label: "init"
       component: tools
       workingDir: ${PROJECTS_ROOT}
       commandLine: |
-        #!/usr/bin/env bash
+        HOME=/checode/home/user # <- DO NOT CHANGE THIS
 
-        if ! /checode/checode-linux-libc/bin/remote-cli/code-oss --list-extensions | grep -E 'googlecloudtools.cloudcode' >/dev/null 2>&1; then
-          /checode/checode-linux-libc/bin/remote-cli/code-oss --install-extension ${HOME}/vscode-extensions/cloudcode.vsix --force
-        fi
+        ### export PATH environment variable using ~/.zshrc
+        mkdir -p ${HOME}/init
+        echo "export PATH=${PATH}:\$PATH" > ${HOME}/init/path.sh
 
-        if [[ -f ${HOME}/secrets/.dockerconfigjson ]]; then
+        ## Configure docker secrets
+        if [[ -f /etc/secrets/docker/.dockerconfigjson ]]; then
           mkdir -p ${HOME}/.docker
-          ln -sfv ${HOME}/secrets/.dockerconfigjson ${HOME}/.docker/config.json
+          ln -sfv /etc/secrets/docker/.dockerconfigjson ${HOME}/.docker/config.json;
         fi
-  - id: gcloud-auth
-    exec:
-      label: "GCLOUD: gcloud auth"
-      component: tools
-      workingDir: ${PROJECTS_ROOT}
-      commandLine: |
-        gcloud auth login --update-adc --add-quota-project-to-adc --quiet --verbosity warning
+
+        ## Enable GCP WIF
+        ## error: failed to create token: serviceaccounts "devspace" is forbidden:
+        ## User "system:serviceaccount:spuranam-ford-com-devspaces:workspacee46c9581fbf5462a-sa"
+        ## cannot create resource "serviceaccounts/token" in API group "" in the namespace
+        ## "spuranam-ford-com-devspaces"
+        #if [[ -f /var/run/secrets/google/*.json ]]; then
+        #  TOKEN=$(jq -r '.credential_source.file' /var/run/secrets/google/*.json)
+        #  mkdir -p ${TOKEN%/*}
+        #  nohup watch -n 3000 "kubectl create token devspace --duration=1h --audience=openshift > ${TOKEN}" &>/dev/null &
+        #  #nohup watch -n 10 'date --utc "+%Y-%m-%d %H:%M:%S" >> /tmp/date' &
+        #fi
+
+        ## Add alias to refer to tools/utilities from secondary containers
+        mkdir -p ${HOME}/init
+        cat << 'EOF' > ${HOME}/init/aliases.sh
+        alias hugo="kubectl exec -it \$(kubectl get po -l controller.devfile.io/devworkspace_name=\${DEVWORKSPACE_NAME} -o=custom-columns=NAME:.metadata.name --no-headers=true) -c hugo -- hugo \$@"
+        EOF
+
+        ## A workaround for bad git config created by devspaces "git config --list"
+        git config --global user.email "$(git config user.name)"
+
   - id: install-dependencies-go-hello-world
     exec:
       label: "GO: install dependencies"
@@ -162,10 +157,6 @@ commands:
       label: "HUGO: start hugo server"
       component: hugo
       commandLine: |
-        #alias hugo="kubectl exec -it $(kubectl get po -l controller.devfile.io/devworkspace_name=${DEVWORKSPACE_NAME} -o=custom-columns=NAME:.metadata.name --no-headers=true) -c hugo -- hugo $@"
-        #WORKSPACE_POD=$(kubectl get po -l controller.devfile.io/devworkspace_name=${DEVWORKSPACE_NAME} -o=custom-columns=NAME:.metadata.name --no-headers=true)
-        #kubectl exec -it ${WORKSPACE_POD} -c hugo -- hugo --help
-
         hugo server \
         --baseURL=https://${DEVWORKSPACE_ID}-1.$(echo -n ${CHE_DASHBOARD_URL} | cut -d'.' -f2- | tr -d '/') \
         --appendPort=false \

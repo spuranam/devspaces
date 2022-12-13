@@ -1,0 +1,82 @@
+{
+  "cloudcode.autoDependencies": "off",
+  "cloudcode.enableMinikubeGcpAuthPlugin": false,
+  "cloudcode.minikubeStatusBar": false,
+  "cloudcode.enableTelemetry": false,
+  "debug.inlineValues": "on",
+  "explorer.compactFolders": false,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.detectIndentation": true,
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'CaskaydiaCove Nerd Font', 'FiraCode Nerd Font', 'GoMono Nerd Font', 'SauceCodePro Nerd Font'",
+  "editor.fontLigatures": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": false,
+  "editor.minimap.autohide": true,
+  "editor.minimap.enabled": false,
+  "editor.renderControlCharacters": true,
+  "editor.renderWhitespace": "all",
+  "editor.tabSize": 2,
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 150,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+  },
+  "files.associations": {
+    "Vagrantfile": "ruby",
+    "*.js": "javascript",
+    "*.jsx": "javascriptreact",
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact",
+    "*.css": "css"
+  },
+  "files.autoSave": "onFocusChange",
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "git.ignoreLimitWarning": true,
+  "git.branchProtection": [
+    "main",
+    "master",
+    "distro",
+    "release/*"
+  ],
+  "git.branchProtectionPrompt": "alwaysCommitToNewBranch",
+  "git.branchRandomName.enable": true,
+  "git.pullBeforeCheckout": true,
+  "git.mergeEditor": true,
+  "githubPullRequests.assignCreated": "${user}",
+  "githubPullRequests.defaultMergeMethod": "squash",
+  "redhat.telemetry.enabled": false,
+  "terminal.integrated.fontFamily": "'CaskaydiaCove Nerd Font Mono', 'FiraCode Nerd Font Mono', 'GoMono Nerd Font Mono', 'SauceCodePro Nerd Font Mono'",
+  "terminal.integrated.copyOnSelection": true,
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.localEchoStyle": "dim",
+  "workbench.colorTheme": "Default Dark+",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "vs-kubernetes": {
+    "vs-kubernetes.crd-code-completion": "disabled",
+  },
+  "yaml.schemas": {
+    "Kubernetes": "*.yaml"
+  },
+}

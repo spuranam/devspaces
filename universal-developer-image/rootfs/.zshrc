@@ -9,7 +9,8 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
+#export ZSH=$HOME/.oh-my-zsh
+export ZSH=/opt/oh-my-zsh
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -112,7 +113,19 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+export GPG_TTY=$(tty)
+
+## https://medium.com/codex/how-and-why-you-should-split-your-bashrc-or-zshrc-files-285e5cc3c843
+## https://koenwoortman.com/zsh-split-zshrc-into-multiple-files/
+## https://scriptingosx.com/2019/06/moving-to-zsh-part-2-configuration-files/
+## Find all .sh files in ~/zshrc, exclude 'init.sh'.
+FILES_STR=$(fd --glob '*.sh' --exclude 'init.sh' ${HOME}/init 2>/dev/null)
+# 'tr' is a find-and-replace utility.
+# Outer () will convert the output of $() to array.
+FILES=($(echo $FILES_STR | tr '\n' ' '))
+for FILE in $FILES; do
+  source $FILE
+done
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-export GPG_TTY=$(tty)

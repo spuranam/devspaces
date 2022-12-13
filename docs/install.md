@@ -92,7 +92,7 @@ spec:
   daemonsetName: k8s-image-puller
   deploymentName: kubernetes-image-puller
   imagePullerImage: 'quay.io/eclipse/kubernetes-image-puller:next'
-  images: "img-1=quay.io/devspaces/code-rhel8:next;img-2=quay.io/devspaces/idea-rhel8:next;img-3=quay.io/devspaces/machineexec-rhel8:next;img-4=quay.io/devspaces/theia-endpoint-rhel8:next;img-5=quay.io/devspaces/theia-rhel8:next;img-6=quay.io/devspaces/udi-rhel8:next;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221203-1902;img-9=registry.ford.com/pipelines/hugo:0.107.0"
+  images: "img-1=quay.io/devspaces/code-rhel8:next;img-2=quay.io/devspaces/idea-rhel8:next;img-3=quay.io/devspaces/machineexec-rhel8:next;img-4=quay.io/devspaces/theia-endpoint-rhel8:next;img-5=quay.io/devspaces/theia-rhel8:next;img-6=quay.io/devspaces/udi-rhel8:next;img-7=registry.redhat.io/devspaces/traefik-rhel8@sha256:e2646cca2b7f295077cf23b720c470e587ca9f88acd0e4c6e7f359dd7748ac97;img-8=registry.ford.com/devspaces/udi-ubi8:20221211-2341;img-9=registry.ford.com/pipelines/hugo:0.108.0"
 EOF
 ```
 
@@ -306,10 +306,11 @@ spec:
     disableContainerBuildCapabilities: false
     ## until https://github.com/eclipse/che/issues/21760 is addressed
     defaultEditor: https://eclipse-che.github.io/che-plugin-registry/main/v3/plugins/che-incubator/che-code/insiders/devfile.yaml
+    #serviceAccount: devspace #https://issues.redhat.com/browse/CRW-3470
     defaultComponents:
       - name: universal-developer-image
         container:
-          image: registry.ford.com/devspaces/udi-ubi8:20221203-1902
+          image: registry.ford.com/devspaces/udi-ubi8:20221211-2341
           sourceMapping: /projects
           memoryLimit: 6Gi
           memoryRequest: 1Gi
@@ -346,8 +347,6 @@ EOF
 ## Patch DWCO
 
 ```bash
-
-
 kubectl apply -f - --server-side --force-conflicts <<EOF
 kind: DevWorkspaceOperatorConfig
 apiVersion: controller.devfile.io/v1alpha1
@@ -485,7 +484,6 @@ spec:
 EOF
 ```
 
-
 ```bash
 oc patch OperatorHub cluster --type json -p '[{"op": "add", "path": "/spec/disableAllDefaultSources", "value": false}]'
 
@@ -579,7 +577,6 @@ subjects:
   name: devworkspace-controller-serviceaccount
   namespace: openshift-operators
 EOF
-
 
 cat <<EOF | oc apply -f - --server-side --force-conflicts
 apiVersion: operators.coreos.com/v1alpha1
@@ -739,27 +736,27 @@ EOF
 
 ## Refs
 
-- https://github.com/che-incubator/devspaces-demo
-- https://docs.google.com/presentation/d/1PUwPsY8TosHMsQT0iMe6zLD4wrd66U_oot2_oSIM9F0/edit#slide=id.g15b6d695eef_1_0
-- https://github.com/l0rd/devworkspace-demo/tree/container-contributions-v2
-- https://github.com/l0rd/tilt-example-java/tree/main
+- <https://github.com/che-incubator/devspaces-demo>
+- <https://docs.google.com/presentation/d/1PUwPsY8TosHMsQT0iMe6zLD4wrd66U_oot2_oSIM9F0/edit#slide=id.g15b6d695eef_1_0>
+- <https://github.com/l0rd/devworkspace-demo/tree/container-contributions-v2>
+- <https://github.com/l0rd/tilt-example-java/tree/main>
 
 ## Secure Supply Chain
 
-- https://github.com/jchraibi/multicluster-devsecops/tree/hybrid-cloud-patterns-main
-- https://github.com/jchraibi/spring-petclinic-pac
+- <https://github.com/jchraibi/multicluster-devsecops/tree/hybrid-cloud-patterns-main>
+- <https://github.com/jchraibi/spring-petclinic-pac>
 
 ## Devfiles
 
-- https://github.com/azkaoru/devfile-eap64/blob/main/devfile.yaml
-- https://github.com/eclipse/che/issues/21481
-- https://tech.paulcz.net/blog/building-spring-docker-images/
-- https://github.com/l0rd/go-hello-world/blob/main/.devfile.yaml
-- https://github.com/l0rd/tilt-example-java/blob/main/.devfile.yaml
-- https://github.com/eclipse-che/che-operator/blob/main/devfile.yaml
-- https://github.com/che-samples/golang-echo-example/blob/devfile2/devfile.yaml
-- https://github.com/che-samples/golang-example/blob/devfilev2/devfile.yaml
+- <https://github.com/azkaoru/devfile-eap64/blob/main/devfile.yaml>
+- <https://github.com/eclipse/che/issues/21481>
+- <https://tech.paulcz.net/blog/building-spring-docker-images/>
+- <https://github.com/l0rd/go-hello-world/blob/main/.devfile.yaml>
+- <https://github.com/l0rd/tilt-example-java/blob/main/.devfile.yaml>
+- <https://github.com/eclipse-che/che-operator/blob/main/devfile.yaml>
+- <https://github.com/che-samples/golang-echo-example/blob/devfile2/devfile.yaml>
+- <https://github.com/che-samples/golang-example/blob/devfilev2/devfile.yaml>
 
 ## Workshop
 
-- https://github.com/devsecops-workshop
+- <https://github.com/devsecops-workshop>
